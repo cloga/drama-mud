@@ -1,0 +1,17 @@
+{
+  "miniprogramRoot": "./dist/",
+  "projectname": "drama-mud",
+  "description": "Drama MUD — LLM-driven text MUD game",
+  "appid": "touristappid",
+  "setting": {
+    "urlCheck": false,
+    "es6": false,
+    "enhance": false,
+    "compileHotReLoad": false,
+    "postcss": false,
+    "minified": false,
+    "newFeature": true
+  },
+  "compileType": "miniprogram",
+  "condition": {}
+}
