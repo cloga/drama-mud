@@ -1,0 +1,23 @@
+[
+  {
+    "id": "npc-loyal",
+    "name": "赵忠",
+    "description": "一位忠诚的老仆人",
+    "personality": "忠心耿耿、沉默寡言",
+    "isNpc": true
+  },
+  {
+    "id": "npc-bully",
+    "name": "王富贵",
+    "description": "当地恶霸",
+    "personality": "欺软怕硬、贪婪无耻",
+    "isNpc": true
+  },
+  {
+    "id": "npc-usurper",
+    "name": "太师慕容",
+    "description": "朝中权臣",
+    "personality": "老谋深算",
+    "isNpc": true
+  }
+]
