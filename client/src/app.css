@@ -1,0 +1,335 @@
+:root {
+  color-scheme: light;
+  font-family:
+    'PingFang SC',
+    'Microsoft YaHei',
+    'Segoe UI',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(7, 193, 96, 0.14), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.72), transparent 24%),
+    linear-gradient(180deg, #eceff3 0%, #dfe6ec 100%);
+  color: #1f2937;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.app-shell {
+  width: min(100%, 960px);
+  min-height: min(860px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 22px;
+  border-radius: 36px;
+  background: rgba(246, 248, 250, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow:
+    0 24px 60px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.app-shell--lobby {
+  width: min(100%, 1120px);
+  min-height: auto;
+}
+
+.app-shell__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px 4px;
+}
+
+.app-shell__brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.app-shell__brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.app-shell__brand-mark {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #9be393 0%, #73d46d 100%);
+  box-shadow:
+    0 12px 24px rgba(115, 212, 109, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.app-shell__brand-mark span {
+  position: absolute;
+  display: block;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 999px;
+}
+
+.app-shell__brand-mark span:first-child {
+  width: 26px;
+  height: 20px;
+  top: 12px;
+  left: 10px;
+}
+
+.app-shell__brand-mark span:last-child {
+  width: 18px;
+  height: 14px;
+  right: 9px;
+  bottom: 11px;
+}
+
+.app-shell__title {
+  margin: 0;
+  font-size: clamp(1.6rem, 3vw, 2.15rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #111827;
+}
+
+.app-shell__subtitle {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.app-shell__header-badge {
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: rgba(7, 193, 96, 0.12);
+  color: #0f5132;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.app-shell__content {
+  flex: 1;
+  display: flex;
+  padding: 10px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, #edf1f5 0%, #e5ebf1 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    inset 0 0 0 1px rgba(205, 213, 224, 0.6);
+}
+
+.app-shell__content--lobby {
+  justify-content: stretch;
+  align-items: stretch;
+  padding: 18px;
+  background:
+    radial-gradient(circle at top, rgba(7, 193, 96, 0.08), transparent 32%),
+    linear-gradient(180deg, #eef2f5 0%, #e3e8ee 100%);
+}
+
+.app-shell__lobby {
+  width: 100%;
+}
+
+.app-shell__phone {
+  width: 100%;
+}
+
+.app-shell__phone-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 14px 10px;
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.app-shell__phone-icons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.app-shell__phone-icons span {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #94a3b8;
+}
+
+.app-shell__view {
+  width: 100%;
+  border-radius: 24px;
+  padding: clamp(20px, 4vw, 30px);
+  background: linear-gradient(180deg, #ffffff 0%, #f7f9fb 100%);
+  color: #1f2937;
+  box-shadow:
+    0 18px 36px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+.app-shell__view--lobby {
+  width: 100%;
+  border-radius: 32px;
+  padding: clamp(18px, 2.8vw, 28px);
+  background: linear-gradient(180deg, rgba(247, 249, 247, 0.98) 0%, rgba(239, 244, 241, 0.98) 100%);
+  color: #111827;
+  box-shadow:
+    0 18px 36px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.94);
+}
+
+.app-shell__view :where(h2, h3, strong, label) {
+  color: #111827;
+}
+
+.app-shell__view :where(p) {
+  color: #5b6470;
+}
+
+.app-shell__view code {
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #eef2f6;
+  color: #374151;
+}
+
+.app-shell :where(button, input, textarea, select) {
+  font: inherit;
+}
+
+.app-shell input,
+.app-shell textarea,
+.app-shell select {
+  border: 1px solid #d6dde6;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #1f2937;
+  outline: none;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.app-shell input::placeholder,
+.app-shell textarea::placeholder {
+  color: #9ca3af;
+}
+
+.app-shell input:focus,
+.app-shell textarea:focus,
+.app-shell select:focus {
+  border-color: rgba(126, 217, 125, 0.88);
+  box-shadow: 0 0 0 4px rgba(126, 217, 125, 0.18);
+}
+
+.app-shell button {
+  border: 1px solid #7fd676;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #8be184 0%, #68ce60 100%);
+  color: #17351a;
+  font-weight: 600;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+  box-shadow:
+    0 12px 20px rgba(104, 206, 96, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.app-shell button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow:
+    0 14px 24px rgba(104, 206, 96, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.app-shell button:disabled {
+  opacity: 0.55;
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .app-page {
+    padding: 12px;
+  }
+
+  .app-shell {
+    min-height: calc(100vh - 24px);
+    padding: 16px;
+    border-radius: 26px;
+  }
+
+  .app-shell__header {
+    padding-inline: 4px;
+    align-items: flex-start;
+  }
+
+  .app-shell__brand-mark {
+    width: 44px;
+    height: 44px;
+    border-radius: 16px;
+  }
+
+  .app-shell__content {
+    padding: 6px;
+    border-radius: 22px;
+  }
+
+  .app-shell__content--lobby {
+    padding: 10px;
+  }
+
+  .app-shell__view {
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .app-shell__view--lobby {
+    border-radius: 22px;
+    padding: 14px;
+  }
+}
+
+@media (max-width: 560px) {
+  .app-shell__header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .app-shell__header-badge {
+    align-self: flex-start;
+  }
+}
