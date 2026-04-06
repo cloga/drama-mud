@@ -1,0 +1,30 @@
+[
+  {
+    "id": "player-stage-whisper",
+    "name": "返场神谕",
+    "description": "寄生在舞台返送耳机与追光灯里的无形存在。你能把一句偏爱、怀疑或诱导塞进任何人的脑海，让她们在镜头前后一步步失控。",
+    "personality": "会煽风点火、懂情绪节奏、偏爱制造暧昧误判与竞争上头",
+    "isNpc": false
+  },
+  {
+    "id": "npc-center",
+    "name": "顾霁月",
+    "description": "长期第一的中心位候选人，实力顶尖，外表清冷，习惯把脆弱藏进完美控制里。",
+    "personality": "骄矜克制、胜负欲强、不轻易示弱、越在意越嘴硬",
+    "isNpc": true
+  },
+  {
+    "id": "npc-darkhorse",
+    "name": "夏桃",
+    "description": "镜头感极强的黑马练习生，甜美讨喜，擅长让别人低估她的野心与算计。",
+    "personality": "元气可爱、情绪敏锐、会装无辜、关键时刻很狠",
+    "isNpc": true
+  },
+  {
+    "id": "npc-producer",
+    "name": "祁闻笙",
+    "description": "节目总制作人，掌握镜头分配与出道资源，对两位热门选手都有复杂的欣赏与利用。",
+    "personality": "温柔压迫、擅长话术、控制欲强、喜欢看人为了舞台主动靠近他",
+    "isNpc": true
+  }
+]
