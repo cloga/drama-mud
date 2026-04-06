@@ -1,0 +1,30 @@
+[
+  {
+    "id": "player-dorm-god",
+    "name": "宿舍楼旧神",
+    "description": "盘踞在圣缇雅艺术学院旧宿舍里的神秘意志。你能让一句低语像心事一样钻进别人的脑海，让友情、暗恋、攀比和嫉妒自己长成纠缠的网。",
+    "personality": "慵懒狡黠、善于看穿少女心事、最爱把平静日常推向失控边缘",
+    "isNpc": false
+  },
+  {
+    "id": "npc-campus-flower",
+    "name": "沈栀",
+    "description": "学院里最受关注的舞蹈首席，漂亮得过分，习惯被偏爱，也害怕哪天失去全部目光。",
+    "personality": "明艳自信、敏感骄傲、会用玩笑掩饰不安",
+    "isNpc": true
+  },
+  {
+    "id": "npc-president",
+    "name": "许嘉宁",
+    "description": "学生会会长兼钢琴系优等生，表面温柔可靠，实际上对秩序、名额和人心都有很强控制欲。",
+    "personality": "温和克制、占有欲隐蔽、擅长说服别人按她的方式做事",
+    "isNpc": true
+  },
+  {
+    "id": "npc-transfer",
+    "name": "程以蓝",
+    "description": "新转来的交换生，气质安静，背景神秘，似乎总能轻易吸引别人注意，也最容易成为众矢之的。",
+    "personality": "安静冷淡、观察力强、不爱解释、越被针对越不肯退让",
+    "isNpc": true
+  }
+]
