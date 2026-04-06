@@ -323,7 +323,12 @@ export function createRuntimeRunner(config: RuntimeRunnerFactoryConfig): Runtime
 
   return async (request) => {
     try {
-      return await httpRunner(request)
+      const envelope = await httpRunner(request)
+      const transportError = toRuntimeHttpTransportError(envelope, config.baseUrl)
+      if (transportError) {
+        throw transportError
+      }
+      return envelope
     } catch (error) {
       if (!isHttpTransportError(error)) {
         throw error
@@ -495,8 +500,16 @@ export function createRuntimeHttpRunner(config: RuntimeHttpRunnerConfig): Runtim
       }
 
       try {
-        return runtimeEnvelopeSchema.parse(JSON.parse(rawBody) as RuntimeEnvelope)
+        const envelope = runtimeEnvelopeSchema.parse(JSON.parse(rawBody) as RuntimeEnvelope)
+        const transportError = toRuntimeHttpTransportError(envelope, baseUrl)
+        if (transportError) {
+          throw transportError
+        }
+        return envelope
       } catch (error) {
+        if (error instanceof OptimusRuntimeError) {
+          throw error
+        }
         throw new OptimusRuntimeError(
           'invalid_json',
           `Optimus runtime HTTP endpoint at ${baseUrl} returned invalid JSON. ${error instanceof Error ? error.message : String(error)}`,
@@ -524,6 +537,59 @@ export function createRuntimeHttpRunner(config: RuntimeHttpRunnerConfig): Runtim
       clearTimeout(timeout)
     }
   }
+}
+
+function toRuntimeHttpTransportError(envelope: RuntimeEnvelope, baseUrl: string): OptimusRuntimeError | null {
+  if (envelope.status === 'completed') {
+    return null
+  }
+
+  const code = envelope.error_code
+  const message = envelope.error_message
+  if (!isHttpTransportEnvelope(code, message)) {
+    return null
+  }
+
+  const details = [code?.trim(), message?.trim()].filter(Boolean).join(' ')
+  return new OptimusRuntimeError(
+    'http_unavailable',
+    `Optimus runtime HTTP endpoint at ${baseUrl} is unavailable or serving the wrong endpoint${details ? `: ${details}` : '.'}`,
+    {
+      status: envelope.status,
+      cause: envelope,
+    },
+  )
+}
+
+function isHttpTransportEnvelope(code?: string, message?: string): boolean {
+  const normalizedCode = code?.trim().toLowerCase().replace(/[\s-]+/gu, '_')
+  if (
+    normalizedCode === 'http_unavailable' ||
+    normalizedCode === 'not_found' ||
+    normalizedCode === 'resource_not_found' ||
+    normalizedCode === 'endpoint_not_found' ||
+    normalizedCode === 'route_not_found'
+  ) {
+    return true
+  }
+
+  if (!message) {
+    return false
+  }
+
+  const normalized = message.replace(/\s+/gu, ' ').trim()
+  if (!normalized || /\bmodel\b/iu.test(normalized)) {
+    return false
+  }
+
+  return (
+    /^404\b.*\bresource not found\b/iu.test(normalized) ||
+    /^resource not found$/iu.test(normalized) ||
+    /^404\b.*\bnot found\b/iu.test(normalized) ||
+    /^not found$/iu.test(normalized) ||
+    /\bcannot (?:get|post|put|patch|delete)\b/iu.test(normalized) ||
+    /\b(?:route|endpoint|path)\b.*\bnot found\b/iu.test(normalized)
+  )
 }
 
 function formatRuntimeHttpError(status: number, statusText: string, rawBody: string): string {
@@ -753,6 +819,14 @@ function toRuntimeError(envelope: RuntimeEnvelope, workspaceRoot: string): Optim
   const code = envelope.error_code ?? envelope.status
   const baseMessage = envelope.error_message ?? `Optimus runtime returned status "${envelope.status}".`
 
+  if (isHttpTransportEnvelope(code, envelope.error_message)) {
+    return new OptimusRuntimeError(
+      'http_unavailable',
+      `Optimus runtime HTTP server is unavailable or serving the wrong endpoint. Start or point to the correct HTTP runtime service, then retry. ${baseMessage}`,
+      { status: envelope.status },
+    )
+  }
+
   switch (code) {
     case 'auth_failed':
       return new OptimusRuntimeError(
@@ -842,8 +916,13 @@ function shouldFallbackModel(error: unknown): boolean {
 }
 
 function isHttpTransportError(error: unknown): error is OptimusRuntimeError {
-  return (
-    error instanceof OptimusRuntimeError &&
-    (error.code === 'http_unavailable' || error.code === 'timeout')
-  )
+  if (error instanceof OptimusRuntimeError) {
+    return (
+      error.code === 'http_unavailable' ||
+      error.code === 'timeout' ||
+      isHttpTransportEnvelope(error.code, error.message)
+    )
+  }
+
+  return error instanceof Error && isHttpTransportEnvelope(undefined, error.message)
 }

@@ -50,7 +50,7 @@ export function loadConfig(): ServerConfig {
     npcBackend: requestedNpcBackend,
     llmConfigured,
     llmApiKey,
-    llmBaseUrl: readFirstEnv('OPENAI_BASE_URL', 'VOLC_ARK_BASE_URL', 'BASE_URL') ?? 'https://api.openai.com/v1',
+    llmBaseUrl: readFirstEnv('LLM_BASE_URL', 'OPENAI_BASE_URL', 'VOLC_ARK_BASE_URL') ?? 'https://api.openai.com/v1',
     llmModel,
     llmFallbackModels: parseModelFallbacks(process.env.LLM_FALLBACK_MODELS, llmModel),
     llmMaxOutputTokens: parsePositiveInt(process.env.LLM_MAX_OUTPUT_TOKENS, 160),
@@ -73,7 +73,7 @@ export function loadConfig(): ServerConfig {
   }
 
   if (requestedNpcBackend === 'llm' && !config.llmConfigured) {
-    console.warn('[config] OPENAI_API_KEY is not set. NPC responses will fail until the LLM is configured.')
+    console.warn('[config] No LLM API key is set. NPC responses will fail until the LLM is configured.')
   }
 
   return config

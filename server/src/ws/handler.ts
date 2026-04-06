@@ -36,11 +36,37 @@ function broadcast(roomId: string, type: string, payload: Record<string, unknown
   }
 }
 
-function formatWsError(err: unknown): string {
+function isRuntimeHttpUnavailableMessage(code: unknown, status: unknown, message: string): boolean {
+  const normalizedCode = typeof code === 'string' ? code.trim().toLowerCase().replace(/[\s-]+/gu, '_') : undefined
+  if (
+    normalizedCode === 'http_unavailable' ||
+    normalizedCode === 'endpoint_not_found' ||
+    normalizedCode === 'route_not_found'
+  ) {
+    return true
+  }
+
+  const normalized = message.replace(/\s+/gu, ' ').trim()
+  if (!normalized || /\bmodel\b/iu.test(normalized)) {
+    return false
+  }
+
+  return (
+    /\bcannot (?:get|post|put|patch|delete)\b/iu.test(normalized) ||
+    /\b(?:route|endpoint|path)\b.*\bnot found\b/iu.test(normalized) ||
+    /\bserving the wrong endpoint\b/iu.test(normalized)
+  )
+}
+
+export function formatWsError(err: unknown): string {
   const status = typeof err === 'object' && err !== null && 'status' in err ? (err as { status?: unknown }).status : undefined
   const code = typeof err === 'object' && err !== null && 'code' in err ? (err as { code?: unknown }).code : undefined
+  const objectMessage =
+    typeof err === 'object' && err !== null && 'message' in err && typeof (err as { message?: unknown }).message === 'string'
+      ? (err as { message: string }).message
+      : undefined
   const message =
-    err instanceof Error ? err.message : typeof err === 'string' ? err : '服务器内部错误'
+    err instanceof Error ? err.message : typeof err === 'string' ? err : objectMessage ?? '服务器内部错误'
 
   if (code === 'cli_not_found') {
     return 'Optimus runtime 未就绪：缺少 .optimus\\dist\\runtime-cli.js，请先在当前仓库构建或初始化运行时。'
@@ -55,6 +81,10 @@ function formatWsError(err: unknown): string {
   }
 
   if (code === 'http_unavailable') {
+    return 'Optimus runtime HTTP 服务不可用，请确认 http-runtime 已启动并监听正确端口。'
+  }
+
+  if (isRuntimeHttpUnavailableMessage(code, status, message)) {
     return 'Optimus runtime HTTP 服务不可用，请确认 http-runtime 已启动并监听正确端口。'
   }
 
@@ -74,6 +104,14 @@ function formatWsError(err: unknown): string {
     return 'Optimus runtime 返回了无效结果，请查看服务端日志获取详细信息。'
   }
 
+  if (status === 404 && /model/i.test(message)) {
+    return 'LLM 模型不可用，请检查 LLM_MODEL 配置。'
+  }
+
+  if (status === 404) {
+    return 'LLM 服务返回 404，请检查 OPENAI_BASE_URL 或供应商兼容接口路径配置。'
+  }
+
   if (status === 429 || /429|rate limit|too many requests|quota/i.test(message)) {
     return 'LLM 服务当前限流（429），请稍后重试。'
   }
@@ -87,10 +125,6 @@ function formatWsError(err: unknown): string {
       return 'LLM 未配置：缺少 OPENAI_API_KEY。'
     }
     return 'LLM 服务鉴权失败，请检查 OPENAI_API_KEY。'
-  }
-
-  if (status === 404 && /model/i.test(message)) {
-    return 'LLM 模型不可用，请检查 LLM_MODEL 配置。'
   }
 
   if (

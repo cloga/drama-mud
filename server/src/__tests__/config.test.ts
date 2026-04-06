@@ -18,6 +18,7 @@ describe('loadConfig', () => {
     delete process.env.MODEL_ID_SEED_1_6
     delete process.env.OPENAI_BASE_URL
     delete process.env.VOLC_ARK_BASE_URL
+    delete process.env.LLM_BASE_URL
     delete process.env.BASE_URL
     delete process.env.LLM_FALLBACK_MODELS
     delete process.env.OPTIMUS_RUNTIME_TRANSPORT
@@ -50,6 +51,7 @@ describe('loadConfig', () => {
     delete process.env.NPC_BACKEND
     delete process.env.OPENAI_BASE_URL
     delete process.env.VOLC_ARK_BASE_URL
+    delete process.env.LLM_BASE_URL
     delete process.env.BASE_URL
     delete process.env.MODEL_ID_SEED_1_6
     process.env.LLM_MODEL = 'doubao-seed-1-6-flash-250828'
@@ -94,8 +96,11 @@ describe('loadConfig', () => {
     delete process.env.OPENAI_API_KEY
     delete process.env.OPENAI_BASE_URL
     delete process.env.OPENAI_MODEL
+    delete process.env.LLM_BASE_URL
+    delete process.env.LLM_MODEL
+    delete process.env.BASE_URL
     process.env.VOLC_ARK_API_KEY = 'ark-key'
-    process.env.BASE_URL = 'https://ark.example.test/api/v3'
+    process.env.VOLC_ARK_BASE_URL = 'https://ark.example.test/api/v3'
     process.env.MODEL_ID_SEED_1_6 = 'doubao-seed-alias'
 
     const config = loadConfig()
@@ -104,6 +109,19 @@ describe('loadConfig', () => {
     expect(config.llmApiKey).toBe('ark-key')
     expect(config.llmBaseUrl).toBe('https://ark.example.test/api/v3')
     expect(config.llmModel).toBe('doubao-seed-alias')
+  })
+
+  it('ignores unrelated generic BASE_URL values for the llm client', () => {
+    delete process.env.OPENAI_API_KEY
+    delete process.env.VOLC_ARK_API_KEY
+    delete process.env.OPENAI_BASE_URL
+    delete process.env.VOLC_ARK_BASE_URL
+    delete process.env.LLM_BASE_URL
+    process.env.BASE_URL = 'https://unrelated.example.test/audio/speech'
+
+    const config = loadConfig()
+
+    expect(config.llmBaseUrl).toBe('https://api.openai.com/v1')
   })
 
   it('keeps the requested backend even when credentials are missing', () => {

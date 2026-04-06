@@ -547,6 +547,35 @@ describe('OptimusRuntimeClient', () => {
     })
   })
 
+  it('normalizes wrong-runtime not_found envelopes to http_unavailable', async () => {
+    const client = new OptimusRuntimeClient({
+      runner: vi.fn().mockResolvedValue({
+        status: 'failed',
+        error_code: 'not_found',
+        error_message: '404 Resource not found',
+      }),
+    })
+
+    await expect(
+      client.runTurn({
+        roomId: 'room-1',
+        game,
+        scene,
+        worldMd: '# world',
+        npc,
+        recentMessages,
+        latestPlayerMessage: {
+          playerName: 'Player',
+          characterName: 'Hero',
+          content: '你怎么看？',
+        },
+      }),
+    ).rejects.toMatchObject({
+      name: 'OptimusRuntimeError',
+      code: 'http_unavailable',
+    })
+  })
+
   it('posts NPC turns to the HTTP runtime endpoint by default', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -642,6 +671,79 @@ describe('OptimusRuntimeClient', () => {
     })
   })
 
+  it('normalizes not_found HTTP envelopes to transport failures so CLI fallback can engage', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      text: vi.fn().mockResolvedValue(
+        JSON.stringify({
+          status: 'failed',
+          error_code: 'not_found',
+          error_message: '404 Resource not found',
+        }),
+      ),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const runner = createRuntimeHttpRunner({
+      baseUrl: 'http://127.0.0.1:3100/',
+      timeoutMs: 5_000,
+    })
+
+    await expect(
+      runner({
+        role: 'dev',
+        workspace_path: 'C:\\workspace\\drama-mud',
+        instructions: 'Return JSON only',
+        input: { task: 'npc turn' },
+        runtime_policy: {
+          mode: 'sync',
+          timeout_ms: 5_000,
+        },
+      }),
+    ).rejects.toMatchObject({
+      name: 'OptimusRuntimeError',
+      code: 'http_unavailable',
+    })
+  })
+
+  it('normalizes bare Not Found HTTP envelopes to transport failures so CLI fallback can engage', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      text: vi.fn().mockResolvedValue(
+        JSON.stringify({
+          status: 'failed',
+          error_message: 'Not Found',
+        }),
+      ),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const runner = createRuntimeHttpRunner({
+      baseUrl: 'http://127.0.0.1:3100/',
+      timeoutMs: 5_000,
+    })
+
+    await expect(
+      runner({
+        role: 'dev',
+        workspace_path: 'C:\\workspace\\drama-mud',
+        instructions: 'Return JSON only',
+        input: { task: 'npc turn' },
+        runtime_policy: {
+          mode: 'sync',
+          timeout_ms: 5_000,
+        },
+      }),
+    ).rejects.toMatchObject({
+      name: 'OptimusRuntimeError',
+      code: 'http_unavailable',
+    })
+  })
+
   it('falls back to the CLI runner when the HTTP runtime is unavailable', async () => {
     const cliRunner = vi.fn().mockResolvedValue({
       status: 'completed',
@@ -688,6 +790,162 @@ describe('OptimusRuntimeClient', () => {
       runtime_metadata: {
         agent_id: 'agent-cli',
         session_id: 'session-cli',
+      },
+    })
+
+    expect(cliRunner).toHaveBeenCalledOnce()
+  })
+
+  it('falls back to the CLI runner when the HTTP runtime returns a not-found failure envelope', async () => {
+    const cliRunner = vi.fn().mockResolvedValue({
+      status: 'completed',
+      result: {
+        decision: 'respond',
+        reply: '错误路由也要转去 CLI。',
+      },
+      runtime_metadata: {
+        agent_id: 'agent-cli-envelope',
+        session_id: 'session-cli-envelope',
+      },
+    })
+
+    const httpRunner = vi.fn().mockResolvedValue({
+      status: 'failed',
+      error_message: '404 Resource not found',
+    })
+
+    const runner = createRuntimeRunner({
+      workspaceRoot: 'C:\\workspace\\drama-mud',
+      transport: 'http',
+      baseUrl: 'http://127.0.0.1:3100',
+      cliPath: 'unused',
+      nodePath: 'unused',
+      timeoutMs: 5_000,
+      httpRunner,
+      cliRunner,
+    })
+
+    await expect(
+      runner({
+        role: 'dev',
+        workspace_path: 'C:\\workspace\\drama-mud',
+        instructions: 'Return JSON only',
+        input: { task: 'npc turn' },
+        runtime_policy: {
+          mode: 'sync',
+          timeout_ms: 5_000,
+        },
+      }),
+    ).resolves.toMatchObject({
+      status: 'completed',
+      result: {
+        decision: 'respond',
+        reply: '错误路由也要转去 CLI。',
+      },
+      runtime_metadata: {
+        agent_id: 'agent-cli-envelope',
+        session_id: 'session-cli-envelope',
+      },
+    })
+
+    expect(httpRunner).toHaveBeenCalledOnce()
+    expect(cliRunner).toHaveBeenCalledOnce()
+  })
+
+  it('falls back to the CLI runner when the HTTP runtime throws a raw resource-not-found error', async () => {
+    const cliRunner = vi.fn().mockResolvedValue({
+      status: 'completed',
+      result: {
+        decision: 'respond',
+        reply: '原始 404 也要走 CLI。',
+      },
+      runtime_metadata: {
+        agent_id: 'agent-cli-raw',
+        session_id: 'session-cli-raw',
+      },
+    })
+
+    const runner = createRuntimeRunner({
+      workspaceRoot: 'C:\\workspace\\drama-mud',
+      transport: 'http',
+      baseUrl: 'http://127.0.0.1:3100',
+      cliPath: 'unused',
+      nodePath: 'unused',
+      timeoutMs: 5_000,
+      httpRunner: vi.fn().mockRejectedValue(new Error('404 Resource not found')),
+      cliRunner,
+    })
+
+    await expect(
+      runner({
+        role: 'dev',
+        workspace_path: 'C:\\workspace\\drama-mud',
+        instructions: 'Return JSON only',
+        input: { task: 'npc turn' },
+        runtime_policy: {
+          mode: 'sync',
+          timeout_ms: 5_000,
+        },
+      }),
+    ).resolves.toMatchObject({
+      status: 'completed',
+      result: {
+        decision: 'respond',
+        reply: '原始 404 也要走 CLI。',
+      },
+      runtime_metadata: {
+        agent_id: 'agent-cli-raw',
+        session_id: 'session-cli-raw',
+      },
+    })
+
+    expect(cliRunner).toHaveBeenCalledOnce()
+  })
+
+  it('falls back to the CLI runner when the HTTP runtime throws a bare not-found error', async () => {
+    const cliRunner = vi.fn().mockResolvedValue({
+      status: 'completed',
+      result: {
+        decision: 'respond',
+        reply: '裸 Not Found 也要走 CLI。',
+      },
+      runtime_metadata: {
+        agent_id: 'agent-cli-bare-not-found',
+        session_id: 'session-cli-bare-not-found',
+      },
+    })
+
+    const runner = createRuntimeRunner({
+      workspaceRoot: 'C:\\workspace\\drama-mud',
+      transport: 'http',
+      baseUrl: 'http://127.0.0.1:3100',
+      cliPath: 'unused',
+      nodePath: 'unused',
+      timeoutMs: 5_000,
+      httpRunner: vi.fn().mockRejectedValue(new Error('Not Found')),
+      cliRunner,
+    })
+
+    await expect(
+      runner({
+        role: 'dev',
+        workspace_path: 'C:\\workspace\\drama-mud',
+        instructions: 'Return JSON only',
+        input: { task: 'npc turn' },
+        runtime_policy: {
+          mode: 'sync',
+          timeout_ms: 5_000,
+        },
+      }),
+    ).resolves.toMatchObject({
+      status: 'completed',
+      result: {
+        decision: 'respond',
+        reply: '裸 Not Found 也要走 CLI。',
+      },
+      runtime_metadata: {
+        agent_id: 'agent-cli-bare-not-found',
+        session_id: 'session-cli-bare-not-found',
       },
     })
 
