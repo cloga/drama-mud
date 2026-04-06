@@ -1,0 +1,23 @@
+[
+  {
+    "id": "npc-brave",
+    "name": "李勇",
+    "description": "探险队队长",
+    "personality": "大胆好奇、嘴硬心软",
+    "isNpc": true
+  },
+  {
+    "id": "npc-timid",
+    "name": "小美",
+    "description": "胆小的探险队成员",
+    "personality": "胆小怕事、容易受惊",
+    "isNpc": true
+  },
+  {
+    "id": "npc-skeptic",
+    "name": "张博士",
+    "description": "超自然现象研究者",
+    "personality": "理性冷静、不信鬼神",
+    "isNpc": true
+  }
+]
