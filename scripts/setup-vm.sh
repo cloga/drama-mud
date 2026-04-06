@@ -37,6 +37,11 @@ fi
 sudo touch "$ENV_FILE" "$ROOM_STORE_FILE"
 sudo chown "$APP_USER:$APP_USER" "$ENV_FILE" "$ROOM_STORE_FILE"
 
+if [[ ! -s "$ROOM_STORE_FILE" ]]; then
+  echo '[]' | sudo tee "$ROOM_STORE_FILE" >/dev/null
+  sudo chown "$APP_USER:$APP_USER" "$ROOM_STORE_FILE"
+fi
+
 if ! sudo grep -q '^PORT=' "$ENV_FILE"; then
   echo 'PORT=3001' | sudo tee -a "$ENV_FILE" >/dev/null
 fi

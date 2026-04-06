@@ -42,5 +42,14 @@ sudo systemctl restart drama-mud
 sudo nginx -t
 sudo systemctl reload nginx
 
-curl -fsS http://127.0.0.1:3001/api/games >/dev/null
-echo "Deployed release $RELEASE_ID"
+for _ in $(seq 1 20); do
+  if curl -fsS http://127.0.0.1:3001/api/games >/dev/null; then
+    echo "Deployed release $RELEASE_ID"
+    exit 0
+  fi
+  sleep 1
+done
+
+sudo systemctl status drama-mud --no-pager --lines 50 >&2
+echo "Deployment completed, but the server did not become healthy in time." >&2
+exit 1
