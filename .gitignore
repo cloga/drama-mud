@@ -21,3 +21,5 @@ coverage/
 .cache/
 .turbo/
 .optimus/
+.swc/
+client-mp/.swc/
