@@ -1,0 +1,9 @@
+{
+  "name": "goddess-campus-fixed",
+  "displayName": "宿舍神谕 · 固定角色",
+  "type": "power-trip",
+  "roleMode": "fixed",
+  "description": "藏在贵族艺术学院旧宿舍里，拨动暗恋、资源与塑料友情，慢慢养成一整栋楼的修罗场",
+  "maxPlayers": 1,
+  "turnLimit": 24
+}
