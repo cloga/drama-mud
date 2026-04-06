@@ -1,0 +1,9 @@
+{
+  "name": "goddess-heiress-fixed",
+  "displayName": "名媛神谕 · 固定角色",
+  "type": "power-trip",
+  "roleMode": "fixed",
+  "description": "隐身操盘豪门夜宴，在继承、婚约与旧情之间挑起一场高定修罗场",
+  "maxPlayers": 1,
+  "turnLimit": 24
+}

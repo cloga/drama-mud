@@ -23,6 +23,61 @@
   margin-bottom: 16px;
 }
 
+.script-intro-card {
+  background: linear-gradient(180deg, #1f1820 0%, #171219 100%);
+  border: 2px solid #6f5a7a;
+  border-radius: 20px;
+  padding: 28px 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.script-intro-title {
+  font-size: 34px;
+  font-weight: bold;
+  color: #f5dfb3;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.script-intro-heading {
+  font-size: 28px;
+  font-weight: bold;
+  color: #d8c3ff;
+  display: block;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.script-intro-paragraph {
+  font-size: 26px;
+  line-height: 1.8;
+  color: #e8e1e9;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.script-intro-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.script-intro-bullet {
+  display: block;
+  font-size: 26px;
+  line-height: 1.8;
+  color: #f0c674;
+  margin-right: 10px;
+}
+
+.script-intro-item-text {
+  flex: 1;
+  font-size: 25px;
+  line-height: 1.8;
+  color: #d9d2da;
+}
+
 .char-card {
   border: 2px solid #555;
   border-radius: 16px;

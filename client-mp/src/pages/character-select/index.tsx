@@ -4,6 +4,7 @@ import { View, Text } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
 import { api } from '../../lib/api'
 import { getStoredSession, setStoredSession } from '../../lib/session'
+import { formatWorldMd } from '../../lib/story-guide'
 import './index.css'
 
 export default function CharacterSelect() {
@@ -17,6 +18,7 @@ export default function CharacterSelect() {
   const decodedPlayerName = decodeURIComponent(encodedPlayerName || '')
 
   const [characters, setCharacters] = useState([])
+  const [worldMd, setWorldMd] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -35,9 +37,10 @@ export default function CharacterSelect() {
     })
 
     api
-      .getGame(templateName)
+      .getRoomGameDetail(roomId, templateName)
       .then((game) => {
         setCharacters(game.characters)
+        setWorldMd(game.worldMd || '')
         setLoading(false)
       })
       .catch((err) => {
@@ -68,11 +71,41 @@ export default function CharacterSelect() {
 
   const playable = characters.filter((character) => !character.isNpc)
   const npcs = characters.filter((character) => character.isNpc)
+  const introBlocks = formatWorldMd(worldMd)
 
   return h(
     View,
     { className: 'select-page' },
     h(Text, { className: 'page-subtitle', key: 'subtitle' }, `房间：${roomId?.slice(0, 16)}... | 玩家：${decodedPlayerName}`),
+    ...(introBlocks.length > 0
+      ? [
+          h(Text, { className: 'section-title', key: 'intro-section-title' }, '剧本背景'),
+          h(
+            View,
+            { className: 'script-intro-card', key: 'intro-card' },
+            ...introBlocks.map((block, index) => {
+              if (block.type === 'title') {
+                return h(Text, { key: `intro-title-${index}`, className: 'script-intro-title' }, block.content)
+              }
+
+              if (block.type === 'heading') {
+                return h(Text, { key: `intro-heading-${index}`, className: 'script-intro-heading' }, block.content)
+              }
+
+              if (block.type === 'item') {
+                return h(
+                  View,
+                  { key: `intro-item-${index}`, className: 'script-intro-item' },
+                  h(Text, { className: 'script-intro-bullet' }, '•'),
+                  h(Text, { className: 'script-intro-item-text' }, block.content),
+                )
+              }
+
+              return h(Text, { key: `intro-paragraph-${index}`, className: 'script-intro-paragraph' }, block.content)
+            }),
+          ),
+        ]
+      : []),
     h(Text, { className: 'section-title', key: 'playable-title' }, '可扮演角色'),
     h(Text, { className: 'section-hint', key: 'playable-hint' }, '点击角色即可进入游戏。'),
     ...playable.map((character) =>

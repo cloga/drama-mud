@@ -1,18 +1,28 @@
 import type { FastifyInstance } from 'fastify'
-import { z } from 'zod'
 import { RoomManager } from '../rooms/room-manager.js'
 import { loadGameTemplates, type GameTemplate } from './game-loader.js'
+import {
+  createBuiltInRoomGame,
+  createCustomRoomGame,
+  createRoomRequestSchema,
+} from '../rooms/room-game.js'
+import type { Room } from '../rooms/room.js'
 
 let cachedTemplates: GameTemplate[] | null = null
+
+async function getTemplates(): Promise<GameTemplate[]> {
+  if (!cachedTemplates) {
+    cachedTemplates = await loadGameTemplates()
+  }
+  return cachedTemplates
+}
 
 export function registerRoutes(app: FastifyInstance, roomManager: RoomManager) {
   /** List available game templates */
   app.get('/api/games', async () => {
-    if (!cachedTemplates) {
-      cachedTemplates = await loadGameTemplates()
-    }
+    const templates = await getTemplates()
     return {
-      games: cachedTemplates.map((t) => ({
+      games: templates.map((t) => ({
         ...t.config,
         characters: t.characters,
       })),
@@ -21,10 +31,7 @@ export function registerRoutes(app: FastifyInstance, roomManager: RoomManager) {
 
   /** Get a single game template by name */
   app.get<{ Params: { name: string } }>('/api/games/:name', async (request, reply) => {
-    if (!cachedTemplates) {
-      cachedTemplates = await loadGameTemplates()
-    }
-    const template = cachedTemplates.find((t) => t.config.name === request.params.name)
+    const template = (await getTemplates()).find((t) => t.config.name === request.params.name)
     if (!template) {
       reply.status(404)
       return { error: '游戏模板不存在' }
@@ -43,13 +50,31 @@ export function registerRoutes(app: FastifyInstance, roomManager: RoomManager) {
 
   /** Create a new room */
   app.post('/api/rooms', async (request, reply) => {
-    const schema = z.object({
-      gameTemplate: z.string(),
-      hostName: z.string(),
-    })
+    const result = createRoomRequestSchema.safeParse(request.body)
+    if (!result.success) {
+      reply.status(400)
+      return {
+        error: '请求参数无效',
+        details: {
+          ...result.error.flatten(),
+          issues: result.error.issues,
+        },
+      }
+    }
 
-    const body = schema.parse(request.body)
-    const room = roomManager.createRoom(body.gameTemplate, body.hostName)
+    let game
+    if (result.data.customGame) {
+      game = createCustomRoomGame(result.data.customGame)
+    } else {
+      const template = (await getTemplates()).find((item) => item.config.name === result.data.gameTemplate)
+      if (!template) {
+        reply.status(400)
+        return { error: '游戏模板不存在' }
+      }
+      game = createBuiltInRoomGame(template)
+    }
+
+    const room = roomManager.createRoom(game, result.data.hostName, result.data.npcBackend)
     reply.status(201)
     return { room }
   })
@@ -62,4 +87,41 @@ export function registerRoutes(app: FastifyInstance, roomManager: RoomManager) {
     }
     return { room }
   })
+
+  /** Get effective game detail for a room */
+  app.get<{ Params: { roomId: string } }>('/api/rooms/:roomId/game', async (request, reply) => {
+    const room = roomManager.getRoom(request.params.roomId)
+    if (!room) {
+      reply.status(404)
+      return { error: '房间不存在' }
+    }
+
+    return room.getGameDetail()
+  })
+
+  /** Get persisted chat history for a room */
+  app.get<{ Params: { roomId: string } }>('/api/rooms/:roomId/messages', async (request, reply) => {
+    const room = roomManager.getRoom(request.params.roomId)
+    if (!room) {
+      reply.status(404)
+      return { error: '房间不存在' }
+    }
+
+    return {
+      roomId: room.id,
+      messages: toTranscriptMessages(room),
+    }
+  })
+}
+
+function toTranscriptMessages(room: Room) {
+  const npcIds = new Set(room.getGame().characters.filter((character) => character.isNpc).map((character) => character.id))
+
+  return room.getMessages().map((message) => ({
+    id: message.id,
+    senderName: message.senderName,
+    content: message.content,
+    timestamp: message.timestamp,
+    type: message.type === 'system' ? 'system' : npcIds.has(message.senderId) ? 'npc' : 'player',
+  }))
 }

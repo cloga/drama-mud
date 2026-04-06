@@ -34,8 +34,51 @@ Create a new room.
 }
 ```
 
+Or create a room from custom authored content:
+
+```json
+{
+  "hostName": "PlayerA",
+  "customGame": {
+    "title": "自定义故事",
+    "description": "玩家自己编写的背景与角色",
+    "worldMd": "# 世界观\n这里填写背景设定",
+    "characters": [
+      {
+        "id": "hero",
+        "name": "主角",
+        "description": "故事主角",
+        "personality": "勇敢坚定",
+        "isNpc": false
+      }
+    ]
+  }
+}
+```
+
+Custom rooms must include at least one playable character (`isNpc: false`) and at least one NPC (`isNpc: true`).
+
 ### `GET /api/rooms/:roomId`
 Retrieve room details.
+
+### `GET /api/rooms/:roomId/game`
+Retrieve the effective game detail for a room, including custom authored background and character definitions.
+
+**Response shape:**
+```json
+{
+  "source": "custom",
+  "config": {
+    "name": "custom-abc123",
+    "displayName": "自定义故事",
+    "type": "power-trip",
+    "roleMode": "open",
+    "description": "玩家自己编写的背景与角色"
+  },
+  "characters": [],
+  "worldMd": "# 世界观\n这里填写背景设定"
+}
+```
 
 ---
 

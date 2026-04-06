@@ -19,6 +19,7 @@ export default function Lobby() {
   const [error, setError] = useState(null)
   const [hostName, setHostName] = useState(() => getStoredPlayerName())
   const [selectedGame, setSelectedGame] = useState(null)
+  const [npcBackend, setNpcBackend] = useState('agent-runtime')
   const [creating, setCreating] = useState(false)
   const [resumeSession, setResumeSession] = useState(() => getStoredSession())
 
@@ -49,11 +50,12 @@ export default function Lobby() {
     setCreating(true)
     const playerName = hostName.trim()
     try {
-      const { room } = await api.createRoom(selectedGame, playerName)
+      const { room } = await api.createRoom(selectedGame, playerName, npcBackend)
       const session = {
         roomId: room.id,
         templateName: selectedGame,
         playerName,
+        npcBackend: room.npcBackend || npcBackend,
       }
       setStoredSession(session)
       setResumeSession(session)
@@ -114,6 +116,33 @@ export default function Lobby() {
         onInput: (e) => setHostName(e.detail.value),
         placeholder: '请输入你的名字',
       }),
+    ),
+    h(
+      View,
+      { className: 'section', key: 'backend-section' },
+      h(Text, { className: 'section-title' }, 'NPC 响应路径'),
+      h(
+        View,
+        { className: 'backend-switch' },
+        h(
+          View,
+          {
+            className: `backend-card ${npcBackend === 'agent-runtime' ? 'backend-card--selected' : ''}`,
+            onClick: () => setNpcBackend('agent-runtime'),
+          },
+          h(Text, { className: 'backend-name' }, 'Agent Runtime'),
+          h(Text, { className: 'backend-desc' }, '走当前 runtime/sync 链路，适合和直连 LLM 对比。'),
+        ),
+        h(
+          View,
+          {
+            className: `backend-card ${npcBackend === 'llm' ? 'backend-card--selected' : ''}`,
+            onClick: () => setNpcBackend('llm'),
+          },
+          h(Text, { className: 'backend-name' }, '直连 LLM'),
+          h(Text, { className: 'backend-desc' }, '直接走 LLM 接口，默认模型 doubao-seed-1-6-flash-250828。'),
+        ),
+      ),
     ),
     h(
       View,

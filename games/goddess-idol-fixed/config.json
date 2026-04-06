@@ -1,0 +1,9 @@
+{
+  "name": "goddess-idol-fixed",
+  "displayName": "星梦神谕 · 固定角色",
+  "type": "power-trip",
+  "roleMode": "fixed",
+  "description": "潜伏在选秀舞台后台，悄悄放大嫉妒、依赖与暧昧，把出道夜搅成修罗场",
+  "maxPlayers": 1,
+  "turnLimit": 24
+}

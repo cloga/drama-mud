@@ -1,4 +1,4 @@
-import type { Character, CharacterConfig } from '../types/index.js'
+import { normalizeDurableFact, type Character, type CharacterConfig, type DurableFact } from '../types/index.js'
 
 /** Manages character creation and state */
 export class CharacterManager {
@@ -41,11 +41,17 @@ export class CharacterManager {
     return true
   }
 
-  /** Add a memory entry to a character */
-  addMemory(characterId: string, memory: string): void {
+  /** Add a durable memory entry to a character */
+  addMemory(characterId: string, memory: string | DurableFact): void {
     const character = this.characters.get(characterId)
     if (character) {
-      character.memory.push(memory)
+      const fact = normalizeDurableFact(memory, {
+        fallbackTimestamp: Date.now(),
+        defaultSubject: 'general',
+      })
+      if (fact) {
+        character.memory.push(fact)
+      }
     }
   }
 }

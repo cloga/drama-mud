@@ -1,4 +1,4 @@
-import type { Message } from '../types/index.js'
+import { createMessageMetadata, type Message, type MessageInput } from '../types/index.js'
 
 /** Manages dialog context with a sliding window for LLM context limits */
 export class DialogManager {
@@ -10,11 +10,11 @@ export class DialogManager {
   }
 
   /** Add a message to the dialog history */
-  addMessage(message: Omit<Message, 'id' | 'timestamp'>): Message {
+  addMessage(message: MessageInput): Message {
+    const { id, timestamp, ...rest } = message
     const fullMessage: Message = {
-      ...message,
-      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      timestamp: Date.now(),
+      ...rest,
+      ...createMessageMetadata('msg', { id, timestamp }),
     }
 
     this.messages.push(fullMessage)

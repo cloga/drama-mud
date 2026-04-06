@@ -1,0 +1,30 @@
+[
+  {
+    "id": "player-oracle",
+    "name": "夜宴神谕",
+    "description": "寄居在温家祖宅镜厅中的无形意志。你能把一句低语送进任何人的心里，诱导她们误会、心动、猜忌或失控，却没人能真正确认你的存在。",
+    "personality": "冷静、恶趣味、擅长操盘关系、喜欢看人失态",
+    "isNpc": false
+  },
+  {
+    "id": "npc-heiress",
+    "name": "温绮罗",
+    "description": "温家长女，今晚的继承人宣布仪式主角。她高贵克制，却极度厌恶被安排婚约与人生。",
+    "personality": "冷艳强势、戒备心重、占有欲隐秘而强烈",
+    "isNpc": true
+  },
+  {
+    "id": "npc-rival-sister",
+    "name": "温晚棠",
+    "description": "寄养在温家的义女，永远只差一步就能站到聚光灯中央。她对姐姐既崇拜又嫉妒。",
+    "personality": "温柔伪装、心思细密、野心勃勃、善于示弱",
+    "isNpc": true
+  },
+  {
+    "id": "npc-fiance",
+    "name": "陆承舟",
+    "description": "温家指定的联姻对象，外表斯文克制，实际上对温绮罗有旧情，也不排斥利用暧昧换取利益。",
+    "personality": "优雅沉稳、掌控欲强、会试探人心、擅长模糊边界",
+    "isNpc": true
+  }
+]

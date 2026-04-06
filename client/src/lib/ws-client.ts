@@ -11,6 +11,7 @@ export interface WsClient {
 export function createWsClient(
   onMessage: WsMessageHandler,
   onConnected?: () => void,
+  onDisconnected?: () => void,
 ): WsClient {
   let ws: WebSocket | null = null
   let reconnectTimer: ReturnType<typeof setTimeout> | null = null
@@ -20,12 +21,19 @@ export function createWsClient(
     ws = new WebSocket(WS_URL)
 
     ws.onopen = () => {
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer)
+        reconnectTimer = null
+      }
       console.log('[WS] Connected')
     }
 
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data)
+        if (data.type === 'heartbeat') {
+          return
+        }
         if (data.type === 'connected' && onConnected) {
           onConnected()
         }
@@ -35,10 +43,17 @@ export function createWsClient(
       }
     }
 
-    ws.onclose = () => {
+    ws.onclose = (event) => {
       if (intentionalClose) return
-      console.log('[WS] Disconnected, reconnecting in 3s...')
-      reconnectTimer = setTimeout(connect, 3000)
+      onDisconnected?.()
+      const reason = event.reason ? ` (${event.reason})` : ''
+      console.log(`[WS] Disconnected [${event.code}], reconnecting in 3s...${reason}`)
+      if (!reconnectTimer) {
+        reconnectTimer = setTimeout(() => {
+          reconnectTimer = null
+          connect()
+        }, 3000)
+      }
     }
 
     ws.onerror = (err) => {

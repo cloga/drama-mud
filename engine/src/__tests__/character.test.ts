@@ -54,6 +54,12 @@ describe('CharacterManager', () => {
   it('should add memory to character', () => {
     manager.addCharacter(sampleConfig, 'scene-1')
     manager.addMemory('char-1', 'Encountered a mysterious traveler')
-    expect(manager.getCharacter('char-1')?.memory).toContain('Encountered a mysterious traveler')
+    expect(manager.getCharacter('char-1')?.memory).toContainEqual(
+      expect.objectContaining({
+        kind: 'observation',
+        subject: 'general',
+        content: 'Encountered a mysterious traveler',
+      }),
+    )
   })
 })

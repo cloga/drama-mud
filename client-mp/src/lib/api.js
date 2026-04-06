@@ -24,10 +24,40 @@ async function request(path, method = 'GET', data) {
   return res.data
 }
 
+function isNotFoundError(error) {
+  return error instanceof Error && error.message.includes('404')
+}
+
+async function requestRoomGame(roomId) {
+  try {
+    return await request(`/api/rooms/${roomId}/game`)
+  } catch (error) {
+    if (!isNotFoundError(error)) {
+      throw error
+    }
+  }
+
+  return request(`/api/rooms/${roomId}/game-detail`)
+}
+
+async function getRoomGameDetail(roomId, fallbackTemplateName) {
+  try {
+    return await requestRoomGame(roomId)
+  } catch (error) {
+    if (!fallbackTemplateName || !isNotFoundError(error)) {
+      throw error
+    }
+
+    return request(`/api/games/${fallbackTemplateName}`)
+  }
+}
+
 export const api = {
   getGames: () => request('/api/games'),
   getGame: (name) => request(`/api/games/${name}`),
-  createRoom: (gameTemplate, hostName) =>
-    request('/api/rooms', 'POST', { gameTemplate, hostName }),
+  getRoomGameDetail,
+  createRoom: (gameTemplate, hostName, npcBackend = 'agent-runtime') =>
+    request('/api/rooms', 'POST', { gameTemplate, hostName, npcBackend }),
   getRoom: (roomId) => request(`/api/rooms/${roomId}`),
+  getRoomMessages: (roomId) => request(`/api/rooms/${roomId}/messages`),
 }
