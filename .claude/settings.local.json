@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__spartan-swarm__optimus_status",
+      "mcp__spartan-swarm__get_user_memory"
+    ]
+  }
+}
