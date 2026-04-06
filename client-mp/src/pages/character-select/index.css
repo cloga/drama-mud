@@ -1,0 +1,66 @@
+.select-page {
+  padding: 32px;
+}
+
+.page-subtitle {
+  font-size: 24px;
+  color: #aaa;
+  display: block;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 32px;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.section-hint {
+  font-size: 24px;
+  color: #888;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.char-card {
+  border: 2px solid #555;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.char-card--playable {
+  background-color: #1a2a1a;
+  border-color: #4caf50;
+}
+
+.char-card--npc {
+  background-color: #2a1a1a;
+  border-color: #555;
+}
+
+.char-name {
+  font-size: 30px;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.char-desc {
+  font-size: 26px;
+  color: #ccc;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.char-personality {
+  font-size: 22px;
+  color: #999;
+  font-style: italic;
+  display: block;
+}
+
+.error-text {
+  color: #ff5252;
+}

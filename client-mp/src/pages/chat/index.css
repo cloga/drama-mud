@@ -1,0 +1,92 @@
+.chat-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.chat-room-id {
+  font-size: 28px;
+  color: #aaa;
+}
+
+.leave-btn {
+  font-size: 24px;
+  background-color: #555;
+  color: #fff;
+  border-radius: 8px;
+}
+
+.connecting-text {
+  color: #ffb74d;
+  font-size: 26px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.chat-scroll {
+  flex: 1;
+  border: 2px solid #333;
+  border-radius: 12px;
+  padding: 16px;
+  background-color: #1a1a1a;
+  margin-bottom: 16px;
+}
+
+.chat-msg {
+  margin-bottom: 12px;
+  font-size: 26px;
+  line-height: 1.5;
+}
+
+.msg-sender {
+  font-weight: bold;
+}
+
+.msg-sender--player {
+  color: #4fc3f7;
+}
+
+.msg-sender--npc {
+  color: #ff8a65;
+}
+
+.msg-sender--system {
+  color: #bdbdbd;
+}
+
+.msg-content {
+  color: #e0e0e0;
+}
+
+.chat-input-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.chat-input {
+  flex: 1;
+  border: 2px solid #555;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 28px;
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+.send-btn {
+  background-color: #4fc3f7;
+  color: #000;
+  font-size: 26px;
+  border-radius: 8px;
+  padding: 0 24px;
+}

@@ -1,0 +1,9 @@
+{
+  "name": "ghost-scare-open",
+  "displayName": "灵异惊吓 · 自由角色",
+  "type": "ghost-scare",
+  "roleMode": "open",
+  "description": "你将扮演鬼魂惊吓 NPC 的惊悚体验，可自由创建角色",
+  "maxPlayers": 4,
+  "turnLimit": 20
+}

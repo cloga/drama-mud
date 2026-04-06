@@ -1,0 +1,23 @@
+[
+  {
+    "id": "npc-innkeeper",
+    "name": "陈老板",
+    "description": "龙吟客栈老板，消息灵通的江湖老前辈",
+    "personality": "热情好客、见多识广",
+    "isNpc": true
+  },
+  {
+    "id": "npc-rival",
+    "name": "冷青锋",
+    "description": "自命不凡的剑道高手",
+    "personality": "骄傲自大、好胜心强",
+    "isNpc": true
+  },
+  {
+    "id": "npc-villain",
+    "name": "暗影尊主",
+    "description": "暗影谷之主",
+    "personality": "阴险狡诈",
+    "isNpc": true
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "name": "comeback-open",
+  "displayName": "逆袭翻盘 · 自由角色",
+  "type": "comeback",
+  "roleMode": "open",
+  "description": "从弱到强的逆袭体验，可自由创建角色",
+  "maxPlayers": 4,
+  "turnLimit": 20
+}

@@ -1,0 +1,9 @@
+{
+  "name": "ghost-scare-fixed",
+  "displayName": "灵异惊吓 · 固定角色",
+  "type": "ghost-scare",
+  "roleMode": "fixed",
+  "description": "你将扮演鬼魂惊吓 NPC 的惊悚体验，可从预设角色中选择",
+  "maxPlayers": 4,
+  "turnLimit": 20
+}

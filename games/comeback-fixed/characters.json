@@ -1,0 +1,30 @@
+[
+  {
+    "id": "player-prince",
+    "name": "萧逸尘",
+    "description": "被废黜的皇子，从云端跌入泥潭",
+    "personality": "坚韧不屈、隐忍善谋",
+    "isNpc": false
+  },
+  {
+    "id": "npc-loyal",
+    "name": "赵忠",
+    "description": "曾经的太子亲卫，暗中保护主人",
+    "personality": "忠心耿耿、沉默寡言",
+    "isNpc": true
+  },
+  {
+    "id": "npc-bully",
+    "name": "王富贵",
+    "description": "当地恶霸，欺压废皇子",
+    "personality": "欺软怕硬、贪婪无耻",
+    "isNpc": true
+  },
+  {
+    "id": "npc-usurper",
+    "name": "太师慕容",
+    "description": "篡位奸臣，把持朝政的幕后黑手",
+    "personality": "老谋深算、狠辣果断",
+    "isNpc": true
+  }
+]

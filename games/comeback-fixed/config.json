@@ -1,0 +1,9 @@
+{
+  "name": "comeback-fixed",
+  "displayName": "逆袭翻盘 · 固定角色",
+  "type": "comeback",
+  "roleMode": "fixed",
+  "description": "从弱到强的逆袭体验，可从预设角色中选择",
+  "maxPlayers": 4,
+  "turnLimit": 20
+}

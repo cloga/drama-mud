@@ -1,0 +1,30 @@
+[
+  {
+    "id": "player-hero",
+    "name": "剑无痕",
+    "description": "天赋异禀的年轻剑客，身怀失传已久的天剑诀",
+    "personality": "洒脱不羁、正义凛然",
+    "isNpc": false
+  },
+  {
+    "id": "npc-innkeeper",
+    "name": "陈老板",
+    "description": "龙吟客栈老板，消息灵通的江湖老前辈",
+    "personality": "热情好客、见多识广、话多",
+    "isNpc": true
+  },
+  {
+    "id": "npc-rival",
+    "name": "冷青锋",
+    "description": "自命不凡的剑道高手，渴望成为武林第一",
+    "personality": "骄傲自大、不服输、好胜心强",
+    "isNpc": true
+  },
+  {
+    "id": "npc-villain",
+    "name": "暗影尊主",
+    "description": "暗影谷之主，觊觎武林至尊之位的野心家",
+    "personality": "阴险狡诈、实力深不可测",
+    "isNpc": true
+  }
+]

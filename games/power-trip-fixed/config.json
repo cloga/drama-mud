@@ -1,0 +1,9 @@
+{
+  "name": "power-trip-fixed",
+  "displayName": "权力爽局 · 固定角色",
+  "type": "power-trip",
+  "roleMode": "fixed",
+  "description": "从头爽到尾的权力幻想体验，可从预设角色中选择",
+  "maxPlayers": 4,
+  "turnLimit": 20
+}

@@ -1,0 +1,20 @@
+{
+  "name": "drama-mud",
+  "version": "0.1.0",
+  "private": true,
+  "description": "🎭 戏精日记 — LLM 驱动的多人文字 MUD 游戏引擎",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "eslint . --ext .ts,.tsx",
+    "typecheck": "pnpm -r typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
+  },
+  "keywords": ["mud", "llm", "game", "multiplayer", "text-adventure"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}
