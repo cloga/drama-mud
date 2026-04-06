@@ -1,0 +1,15 @@
+{
+    "mcpServers": {
+        "spartan-swarm": {
+            "type": "stdio",
+            "command": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+                "C:\\Users\\lochen\\Documents\\GitHub\\drama-mud\\.optimus\\dist\\mcp-server.js"
+            ],
+            "env": {
+                "OPTIMUS_WORKSPACE_ROOT": "C:\\Users\\lochen\\Documents\\GitHub\\drama-mud",
+                "DOTENV_PATH": "C:\\Users\\lochen\\Documents\\GitHub\\drama-mud\\.env"
+            }
+        }
+    }
+}
