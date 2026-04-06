@@ -1,0 +1,9 @@
+{
+  "name": "power-trip-open",
+  "displayName": "权力爽局 · 自由角色",
+  "type": "power-trip",
+  "roleMode": "open",
+  "description": "从头爽到尾的权力幻想体验，可自由创建角色",
+  "maxPlayers": 4,
+  "turnLimit": 20
+}
