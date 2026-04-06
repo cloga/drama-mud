@@ -1,0 +1,30 @@
+[
+  {
+    "id": "player-ghost",
+    "name": "怨灵·白衣",
+    "description": "百年前冤死在古宅中的幽灵，刚刚觉醒",
+    "personality": "阴森诡异、喜欢恶作剧、享受吓人的快感",
+    "isNpc": false
+  },
+  {
+    "id": "npc-brave",
+    "name": "李勇",
+    "description": "探险队队长，自称天不怕地不怕",
+    "personality": "大胆好奇、嘴硬心软",
+    "isNpc": true
+  },
+  {
+    "id": "npc-timid",
+    "name": "小美",
+    "description": "被朋友拖来的胆小女生",
+    "personality": "胆小怕事、容易受惊、想早点离开",
+    "isNpc": true
+  },
+  {
+    "id": "npc-skeptic",
+    "name": "张博士",
+    "description": "超自然现象研究者，手持各种检测仪器",
+    "personality": "理性冷静、不信鬼神、用科学解释一切",
+    "isNpc": true
+  }
+]
