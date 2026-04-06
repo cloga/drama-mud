@@ -32,6 +32,7 @@ describe('loadConfig', () => {
     const config = loadConfig()
 
     expect(config.npcBackend).toBe('llm')
+    expect(config.roomStorePath.replace(/\\/g, '/')).toMatch(/server\/\.runtime-data\/rooms\.json$/)
     expect(config.llmConfigured).toBe(false)
     expect(config.llmModel).toBe('doubao-seed-1-6-flash-250828')
     expect(config.llmFallbackModels).toEqual(['gpt-5.4-mini'])
@@ -59,6 +60,7 @@ describe('loadConfig', () => {
     process.env.LLM_MAX_OUTPUT_TOKENS = '96'
     process.env.OPTIMUS_RUNTIME_TRANSPORT = 'cli'
     process.env.OPTIMUS_RUNTIME_BASE_URL = 'http://runtime.internal:3200'
+    process.env.ROOM_STORE_PATH = '/var/lib/drama-mud/rooms.json'
     process.env.OPTIMUS_RUNTIME_FALLBACK_TRANSPORT = 'cli'
     process.env.OPTIMUS_RUNTIME_ROLE_ENGINE = 'claude-code'
     process.env.OPTIMUS_RUNTIME_ROLE_MODEL = 'claude-opus-4.6-1m'
@@ -68,6 +70,7 @@ describe('loadConfig', () => {
     const config = loadConfig()
 
     expect(config.npcBackend).toBe('llm')
+    expect(config.roomStorePath).toBe('/var/lib/drama-mud/rooms.json')
     expect(config.llmConfigured).toBe(false)
     expect(config.llmModel).toBe('doubao-seed-1-6-flash-250828')
     expect(config.llmFallbackModels).toEqual(['gpt-5.4-mini'])
@@ -127,6 +130,7 @@ describe('loadConfig', () => {
   it('keeps the requested backend even when credentials are missing', () => {
     delete process.env.OPENAI_API_KEY
     delete process.env.VOLC_ARK_API_KEY
+    delete process.env.ROOM_STORE_PATH
     process.env.NPC_BACKEND = 'llm'
 
     const config = loadConfig()

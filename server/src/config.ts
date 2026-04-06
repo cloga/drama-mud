@@ -11,6 +11,7 @@ loadDotenv({
 
 export interface ServerConfig {
   port: number
+  roomStorePath: string
   npcBackend: 'agent-runtime' | 'llm'
   llmConfigured: boolean
   llmApiKey: string
@@ -47,6 +48,8 @@ export function loadConfig(): ServerConfig {
     process.env.OPTIMUS_RUNTIME_FALLBACK_TRANSPORT === 'cli' ? 'cli' : undefined
   const config: ServerConfig = {
     port: parseInt(process.env.PORT ?? '3001', 10),
+    roomStorePath:
+      process.env.ROOM_STORE_PATH?.trim() || resolve(workspaceRoot, 'server', '.runtime-data', 'rooms.json'),
     npcBackend: requestedNpcBackend,
     llmConfigured,
     llmApiKey,

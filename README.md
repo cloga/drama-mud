@@ -68,6 +68,33 @@ Copy `.env.example` to `.env` and fill in your LLM API key:
 cp .env.example .env
 ```
 
+## Azure VM Deployment
+
+This repo now includes:
+
+- `.github/workflows/deploy-azure-vm.yml`
+- `scripts/setup-vm.sh`
+- `scripts/deploy-vm.sh`
+- `ops/systemd/drama-mud.service`
+- `ops/nginx/drama-mud.conf`
+
+The deployment target assumes:
+
+- **Node server** runs on `127.0.0.1:3001`
+- **nginx** serves `client/dist` and proxies `/api` + `/ws`
+- room persistence is externalized with `ROOM_STORE_PATH`
+
+Required GitHub configuration:
+
+| Type | Name | Purpose |
+|------|------|---------|
+| Secret | `AZURE_VM_HOST` | VM public IP or hostname |
+| Secret | `AZURE_VM_SSH_KEY` | Private SSH key used by GitHub Actions |
+| Secret | `DRAMA_MUD_ENV` | Full production env file content written to `/srv/drama-mud/shared/drama-mud.env` |
+| Variable | `AZURE_VM_USER` | SSH user, default `azureuser` |
+| Variable | `AZURE_VM_APP_ROOT` | App root, default `/srv/drama-mud` |
+| Variable | `AZURE_VM_SERVER_NAME` | nginx `server_name`, default `_` |
+
 ## Game Types
 
 | Type | Description |

@@ -1,0 +1,72 @@
+name: Deploy Azure VM
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      VM_HOST: ${{ secrets.AZURE_VM_HOST }}
+      VM_USER: ${{ vars.AZURE_VM_USER || 'azureuser' }}
+      APP_ROOT: ${{ vars.AZURE_VM_APP_ROOT || '/srv/drama-mud' }}
+      SERVER_NAME: ${{ vars.AZURE_VM_SERVER_NAME || '_' }}
+      WEB_ROOT: /var/www/drama-mud
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm -r build
+
+      - name: Configure SSH
+        shell: bash
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.AZURE_VM_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$VM_HOST" >> ~/.ssh/known_hosts
+
+      - name: Upload source bundle
+        shell: bash
+        run: |
+          tar \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='client/dist' \
+            --exclude='server/dist' \
+            -czf /tmp/drama-mud.tar.gz .
+          scp /tmp/drama-mud.tar.gz "$VM_USER@$VM_HOST:/tmp/drama-mud.tar.gz"
+
+      - name: Update production environment file
+        if: ${{ secrets.DRAMA_MUD_ENV != '' }}
+        shell: bash
+        run: |
+          ssh "$VM_USER@$VM_HOST" "sudo mkdir -p '$APP_ROOT/shared' && sudo chown -R '$VM_USER:$VM_USER' '$APP_ROOT/shared'"
+          printf '%s\n' "${{ secrets.DRAMA_MUD_ENV }}" | ssh "$VM_USER@$VM_HOST" "cat > '$APP_ROOT/shared/drama-mud.env'"
+
+      - name: Deploy on VM
+        shell: bash
+        run: |
+          ssh "$VM_USER@$VM_HOST" "rm -rf /tmp/drama-mud-src && mkdir -p /tmp/drama-mud-src && tar -xzf /tmp/drama-mud.tar.gz -C /tmp/drama-mud-src"
+          ssh "$VM_USER@$VM_HOST" "cd /tmp/drama-mud-src && APP_ROOT='$APP_ROOT' APP_USER='$VM_USER' WEB_ROOT='$WEB_ROOT' SERVER_NAME='$SERVER_NAME' bash scripts/setup-vm.sh && APP_ROOT='$APP_ROOT' APP_USER='$VM_USER' WEB_ROOT='$WEB_ROOT' bash scripts/deploy-vm.sh /tmp/drama-mud-src"

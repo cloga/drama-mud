@@ -6,6 +6,7 @@ import { loadConfig } from './config.js'
 import { registerRoutes } from './api/routes.js'
 import { registerWsHandler } from './ws/handler.js'
 import { RoomManager } from './rooms/room-manager.js'
+import { RoomStore } from './rooms/room-store.js'
 import { OptimusRuntimeNpcAdapter } from './runtime/optimus-runtime.js'
 
 export async function createServer() {
@@ -16,7 +17,7 @@ export async function createServer() {
   await app.register(cors, { origin: true })
   await app.register(websocket)
 
-  const roomManager = new RoomManager(undefined, config.npcBackend)
+  const roomManager = new RoomManager(new RoomStore(config.roomStorePath), config.npcBackend)
   const llmClient = createLlmClient({
     apiKey: config.llmApiKey,
     baseURL: config.llmBaseUrl,
