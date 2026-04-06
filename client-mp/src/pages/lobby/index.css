@@ -1,0 +1,100 @@
+.lobby {
+  padding: 32px;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-size: 32px;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.name-input {
+  border: 2px solid #555;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 28px;
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+.game-card {
+  border: 2px solid #555;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  background-color: #1a1a1a;
+}
+
+.game-card--selected {
+  border-color: #4fc3f7;
+  background-color: #1a2a3a;
+}
+
+.game-name {
+  font-size: 30px;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.game-desc {
+  font-size: 24px;
+  color: #aaa;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.game-meta {
+  font-size: 22px;
+  color: #777;
+  display: block;
+}
+
+.backend-switch {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.backend-card {
+  border: 2px solid #555;
+  border-radius: 16px;
+  padding: 20px 24px;
+  background-color: #1a1a1a;
+}
+
+.backend-card--selected {
+  border-color: #4fc3f7;
+  background-color: #1a2a3a;
+}
+
+.backend-name {
+  font-size: 28px;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.backend-desc {
+  font-size: 22px;
+  color: #aaa;
+  display: block;
+}
+
+.create-btn {
+  width: 100%;
+  background-color: #4fc3f7;
+  color: #000;
+  font-size: 30px;
+  border-radius: 12px;
+  margin-top: 16px;
+}
+
+.error-text {
+  color: #ff5252;
+}
