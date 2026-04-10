@@ -1,6 +1,6 @@
 {
   "name": "drama-mud",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "description": "🎭 戏精日记 — LLM 驱动的多人文字 MUD 游戏引擎",
   "scripts": {

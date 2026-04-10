@@ -62,11 +62,16 @@ jobs:
           scp /tmp/drama-mud.tar.gz "$VM_USER@$VM_HOST:/tmp/drama-mud.tar.gz"
 
       - name: Update production environment file
-        if: ${{ secrets.DRAMA_MUD_ENV != '' }}
         shell: bash
+        env:
+          DRAMA_MUD_ENV: ${{ secrets.DRAMA_MUD_ENV }}
         run: |
+          if [[ -z "$DRAMA_MUD_ENV" ]]; then
+            echo "DRAMA_MUD_ENV secret is empty, skipping env file update."
+            exit 0
+          fi
           ssh "$VM_USER@$VM_HOST" "sudo mkdir -p '$APP_ROOT/shared' && sudo chown -R '$VM_USER:$VM_USER' '$APP_ROOT/shared'"
-          printf '%s\n' "${{ secrets.DRAMA_MUD_ENV }}" | ssh "$VM_USER@$VM_HOST" "cat > '$APP_ROOT/shared/drama-mud.env'"
+          printf '%s\n' "$DRAMA_MUD_ENV" | ssh "$VM_USER@$VM_HOST" "cat > '$APP_ROOT/shared/drama-mud.env'"
 
       - name: Deploy on VM
         shell: bash
