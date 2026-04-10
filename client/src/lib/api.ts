@@ -1,4 +1,7 @@
-const API_BASE = import.meta.env.VITE_API_URL ?? ''
+import { getStoredAccessCode } from './access-code.js'
+
+const APP_BASE = normalizeBasePrefix(import.meta.env.BASE_URL)
+const API_BASE = normalizeBasePrefix(import.meta.env.VITE_API_URL) || APP_BASE
 
 export class ApiError extends Error {
   constructor(
@@ -73,9 +76,27 @@ export interface RoomTranscriptMessage {
   type: 'player' | 'npc' | 'system'
 }
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
+export function isUnauthorizedError(error: unknown): error is ApiError {
+  return error instanceof ApiError && error.status === 401
+}
+
+function buildRequestHeaders(headers?: HeadersInit, accessCodeOverride?: string) {
+  const nextHeaders = new Headers(headers)
+  if (!nextHeaders.has('Content-Type')) {
+    nextHeaders.set('Content-Type', 'application/json')
+  }
+
+  const accessCode = accessCodeOverride?.trim() || getStoredAccessCode()
+  if (accessCode) {
+    nextHeaders.set('x-drama-access-code', accessCode)
+  }
+
+  return nextHeaders
+}
+
+async function request<T>(path: string, options?: RequestInit, accessCodeOverride?: string): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: buildRequestHeaders(options?.headers, accessCodeOverride),
     ...options,
   })
 
@@ -89,6 +110,19 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
 
   return response.json() as Promise<T>
+}
+
+function normalizeBasePrefix(value: string | undefined) {
+  const trimmed = (value ?? '').trim()
+  if (!trimmed || trimmed === '/') {
+    return ''
+  }
+
+  if (/^(https?:)?\/\//i.test(trimmed)) {
+    return trimmed.replace(/\/+$/g, '')
+  }
+
+  return `/${trimmed.replace(/^\/+|\/+$/g, '')}`
 }
 
 function createCustomCharacterId(name: string, index: number, isNpc: boolean) {
@@ -129,6 +163,15 @@ async function requestRoomGame(roomId: string) {
 }
 
 export const api = {
+  verifyAccessCode: (accessCode: string) =>
+    request<{ ok: boolean; authEnabled: boolean }>(
+      '/api/auth/access',
+      {
+        method: 'POST',
+        body: JSON.stringify({ accessCode }),
+      },
+      accessCode,
+    ),
   getGames: () => request<{ games: GameInfo[] }>('/api/games'),
   getGame: (name: string) => request<GameDetail>(`/api/games/${name}`),
   getRoomGameDetail: async (roomId: string, fallbackTemplateName?: string) => {

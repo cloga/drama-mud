@@ -181,17 +181,19 @@ export class OptimusRuntimeNpcAdapter implements NpcTurnAdapter {
       try {
         return this.toTurnResult(await this.executeRuntime(input, activeSession, roleModel), activeSession)
       } catch (error) {
-        if (shouldRetryFreshSession(error, activeSession)) {
+        let candidateError = error
+
+        if (shouldRetryFreshSession(candidateError, activeSession)) {
           try {
             return this.toTurnResult(await this.executeRuntime(input, undefined, roleModel), undefined)
           } catch (retryError) {
-            error = retryError
+            candidateError = retryError
           }
         }
 
-        lastError = error
-        if (index === this.roleModels.length - 1 || !shouldFallbackModel(error)) {
-          throw error
+        lastError = candidateError
+        if (index === this.roleModels.length - 1 || !shouldFallbackModel(candidateError)) {
+          throw candidateError
         }
       }
     }

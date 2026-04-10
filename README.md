@@ -90,10 +90,12 @@ Required GitHub configuration:
 |------|------|---------|
 | Secret | `AZURE_VM_HOST` | VM public IP or hostname |
 | Secret | `AZURE_VM_SSH_KEY` | Private SSH key used by GitHub Actions |
-| Secret | `DRAMA_MUD_ENV` | Full production env file content written to `/srv/drama-mud/shared/drama-mud.env` |
+| Secret | `DRAMA_MUD_ENV` | Full production env file content written to `/srv/drama-mud/shared/drama-mud.env`（可选加入 `DRAMA_MUD_ACCESS_CODE=...` 作为共享访问码） |
 | Variable | `AZURE_VM_USER` | SSH user, default `azureuser` |
 | Variable | `AZURE_VM_APP_ROOT` | App root, default `/srv/drama-mud` |
 | Variable | `AZURE_VM_SERVER_NAME` | nginx `server_name`, default `_` |
+| Variable | `AZURE_VM_APP_BASE_PATH` | URL base path, default `/drama-mud/` |
+| Variable | `AZURE_VM_TRINITY_ALPHA_UPSTREAM` | Existing trinity-alpha upstream, default `127.0.0.1:8001` |
 
 ## Game Types
 

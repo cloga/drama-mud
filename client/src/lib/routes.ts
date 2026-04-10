@@ -21,6 +21,8 @@ export interface RouteLocationInput {
   hash?: string
 }
 
+const APP_BASE_PATH = resolveAppBasePath()
+
 function isBrowserReady() {
   return typeof window !== 'undefined'
 }
@@ -28,6 +30,12 @@ function isBrowserReady() {
 function trimOrUndefined(value: string | null) {
   const normalized = value?.trim()
   return normalized ? normalized : undefined
+}
+
+function resolveAppBasePath() {
+  const baseUrl = import.meta.env?.BASE_URL
+  const normalized = normalizePathname(baseUrl)
+  return normalized === '/' ? '' : normalized
 }
 
 function normalizePathname(pathname?: string) {
@@ -38,6 +46,36 @@ function normalizePathname(pathname?: string) {
   }
 
   return withoutIndex.replace(/\/+$/, '')
+}
+
+function stripAppBasePath(pathname?: string) {
+  const normalized = normalizePathname(pathname)
+  if (!APP_BASE_PATH) {
+    return normalized
+  }
+
+  if (normalized === APP_BASE_PATH) {
+    return '/'
+  }
+
+  if (normalized.startsWith(`${APP_BASE_PATH}/`)) {
+    return normalized.slice(APP_BASE_PATH.length) || '/'
+  }
+
+  return normalized
+}
+
+function withAppBasePath(pathname: string) {
+  const normalized = normalizePathname(pathname)
+  if (!APP_BASE_PATH) {
+    return normalized
+  }
+
+  if (normalized === '/') {
+    return APP_BASE_PATH
+  }
+
+  return `${APP_BASE_PATH}${normalized}`
 }
 
 function parseQuery(searchOrQuery = '') {
@@ -110,7 +148,7 @@ function parseLegacyHash(hash = ''): ParsedRoute | null {
 
 export function buildRouteUrl(view: View, gameState: Partial<RouteGameState>): string {
   if (view === 'lobby' || !gameState.roomId) {
-    return '/lobby'
+    return withAppBasePath('/lobby')
   }
 
   const params = new URLSearchParams()
@@ -134,11 +172,11 @@ export function buildRouteUrl(view: View, gameState: Partial<RouteGameState>): s
       : `/rooms/${encodeURIComponent(gameState.roomId)}/characters`
 
   const query = params.toString()
-  return `${routePath}${query ? `?${query}` : ''}`
+  return `${withAppBasePath(routePath)}${query ? `?${query}` : ''}`
 }
 
 export function parseRouteLocation(location: RouteLocationInput): ParsedRoute {
-  return parseRouteParts(location.pathname ?? '/', location.search ?? '') ?? parseLegacyHash(location.hash ?? '') ?? {
+  return parseRouteParts(stripAppBasePath(location.pathname ?? '/'), location.search ?? '') ?? parseLegacyHash(location.hash ?? '') ?? {
     view: 'lobby',
     gameState: {},
   }

@@ -4,11 +4,17 @@ import { createMessageMetadata, type LlmClient, type Message } from '@drama-mud/
 import { RoomManager } from '../rooms/room-manager.js'
 import { GameSession } from '../session/game-session.js'
 import type { NpcTurnAdapter } from '../runtime/optimus-runtime.js'
+import {
+  ACCESS_CODE_ERROR_MESSAGE,
+  isAccessCodeAuthorized,
+  type AccessCodeAuthConfig,
+} from '../auth/access-code.js'
 
 /** Per-socket state */
 interface SocketState {
   playerId: string
   roomId?: string
+  authenticated?: boolean
   turnInFlight?: boolean
 }
 
@@ -205,6 +211,7 @@ export function registerWsHandler(
     npcBackend: 'agent-runtime' | 'llm'
     runtimeAdapter: NpcTurnAdapter
   },
+  auth: AccessCodeAuthConfig = { authEnabled: false, accessCode: '' },
 ) {
   app.register(async (fastify) => {
     fastify.get('/ws', { websocket: true }, (socket: WebSocket, _request) => {
@@ -228,7 +235,7 @@ export function registerWsHandler(
           send(socket, 'error', createErrorPayload('消息格式无效'))
           return
         }
-        handleMessage(socket, state, data, roomManager, runtime).catch((err) => {
+        handleMessage(socket, state, data, roomManager, runtime, auth).catch((err) => {
           console.error('WS handler error:', err)
           send(socket, 'error', createErrorPayload(formatWsError(err)))
         })
@@ -271,6 +278,7 @@ async function handleMessage(
     npcBackend: 'agent-runtime' | 'llm'
     runtimeAdapter: NpcTurnAdapter
   },
+  auth: AccessCodeAuthConfig,
 ) {
   const { type } = data
 
@@ -282,6 +290,11 @@ async function handleMessage(
 
       if (!roomId || !playerName || !characterId) {
         send(socket, 'error', createErrorPayload('缺少 roomId、playerName 或 characterId'))
+        return
+      }
+
+      if (!isAccessCodeAuthorized(data.accessCode, auth)) {
+        send(socket, 'error', createErrorPayload(ACCESS_CODE_ERROR_MESSAGE, 'auth'))
         return
       }
 
@@ -316,6 +329,7 @@ async function handleMessage(
       }
 
       state.roomId = roomId
+      state.authenticated = true
       room.addPlayer(playerName)
       room.start()
       roomManager.persistRoom(roomId)
@@ -350,6 +364,11 @@ async function handleMessage(
       const content = data.content as string
       if (!content || !state.roomId) {
         send(socket, 'error', createErrorPayload('你尚未加入房间，或消息为空'))
+        return
+      }
+
+      if (auth.authEnabled && !state.authenticated) {
+        send(socket, 'error', createErrorPayload(ACCESS_CODE_ERROR_MESSAGE, 'auth'))
         return
       }
 
@@ -483,6 +502,7 @@ async function handleMessage(
         }
         roomManager.persistRoom(state.roomId)
         state.roomId = undefined
+        state.authenticated = false
       }
       send(socket, 'system', createSystemPayload('你已离开房间。', 'leave'))
       break

@@ -26,6 +26,61 @@ describe('room routes', () => {
     await rm(tempDir, { recursive: true, force: true })
   })
 
+  it('rejects api access without the configured shared access code', async () => {
+    await app.close()
+    app = Fastify()
+    registerRoutes(app, roomManager, {
+      authEnabled: true,
+      accessCode: 'let-me-in',
+    })
+    await app.ready()
+
+    const unauthorizedResponse = await app.inject({
+      method: 'GET',
+      url: '/api/games',
+    })
+    expect(unauthorizedResponse.statusCode).toBe(401)
+
+    const verifyResponse = await app.inject({
+      method: 'POST',
+      url: '/api/auth/access',
+      payload: {
+        accessCode: 'let-me-in',
+      },
+    })
+    expect(verifyResponse.statusCode).toBe(200)
+    expect(verifyResponse.json()).toEqual({
+      ok: true,
+      authEnabled: true,
+    })
+
+    const authorizedResponse = await app.inject({
+      method: 'GET',
+      url: '/api/games',
+      headers: {
+        'x-drama-access-code': 'let-me-in',
+      },
+    })
+    expect(authorizedResponse.statusCode).toBe(200)
+  })
+
+  it('does not enforce header auth during websocket handshake requests', async () => {
+    await app.close()
+    app = Fastify()
+    registerRoutes(app, roomManager, {
+      authEnabled: true,
+      accessCode: 'let-me-in',
+    })
+    await app.ready()
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/ws',
+    })
+
+    expect(response.statusCode).toBe(404)
+  })
+
   it('creates a room from a built-in template and exposes its effective game detail', async () => {
     const createResponse = await app.inject({
       method: 'POST',

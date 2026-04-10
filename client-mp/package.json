@@ -1,6 +1,6 @@
 {
   "name": "@drama-mud/client-mp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Drama MUD — Taro WeChat Mini Program + H5 client",
   "templateInfo": {

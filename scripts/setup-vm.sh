@@ -8,10 +8,16 @@ APP_ROOT="${APP_ROOT:-/srv/drama-mud}"
 APP_USER="${APP_USER:-azureuser}"
 SERVER_NAME="${SERVER_NAME:-_}"
 WEB_ROOT="${WEB_ROOT:-/var/www/drama-mud}"
+APP_BASE_PATH="${APP_BASE_PATH:-/drama-mud/}"
+TRINITY_ALPHA_UPSTREAM="${TRINITY_ALPHA_UPSTREAM:-127.0.0.1:8001}"
 ENV_FILE="$APP_ROOT/shared/drama-mud.env"
 ROOM_STORE_FILE="$APP_ROOT/shared/rooms.json"
 
-sudo mkdir -p "$APP_ROOT/releases" "$APP_ROOT/shared" "$WEB_ROOT/current"
+APP_BASE_PATH="/${APP_BASE_PATH#/}"
+APP_BASE_PATH="${APP_BASE_PATH%/}/"
+APP_BASE_PATH_NO_TRAILING="${APP_BASE_PATH%/}"
+
+sudo mkdir -p "$APP_ROOT/releases" "$APP_ROOT/shared" "$WEB_ROOT/current$APP_BASE_PATH"
 sudo chown -R "$APP_USER:$APP_USER" "$APP_ROOT" "$WEB_ROOT"
 
 if ! command -v nginx >/dev/null 2>&1; then
@@ -58,6 +64,10 @@ if ! sudo grep -q '^OPTIMUS_WORKSPACE_ROOT=' "$ENV_FILE"; then
   echo "OPTIMUS_WORKSPACE_ROOT=$APP_ROOT/current" | sudo tee -a "$ENV_FILE" >/dev/null
 fi
 
+if ! sudo grep -q '^VITE_APP_BASE_PATH=' "$ENV_FILE"; then
+  echo "VITE_APP_BASE_PATH=$APP_BASE_PATH" | sudo tee -a "$ENV_FILE" >/dev/null
+fi
+
 sed \
   -e "s|__APP_ROOT__|$APP_ROOT|g" \
   -e "s|__APP_USER__|$APP_USER|g" \
@@ -65,10 +75,14 @@ sed \
 
 sed \
   -e "s|__SERVER_NAME__|$SERVER_NAME|g" \
+  -e "s|__APP_BASE_PATH__|$APP_BASE_PATH|g" \
+  -e "s|__APP_BASE_PATH_NO_TRAILING__|$APP_BASE_PATH_NO_TRAILING|g" \
+  -e "s|__TRINITY_ALPHA_UPSTREAM__|$TRINITY_ALPHA_UPSTREAM|g" \
   "$REPO_ROOT/ops/nginx/drama-mud.conf" | sudo tee /etc/nginx/sites-available/drama-mud.conf >/dev/null
 
 sudo ln -sfn /etc/nginx/sites-available/drama-mud.conf /etc/nginx/sites-enabled/drama-mud.conf
 sudo rm -f /etc/nginx/sites-enabled/default
+sudo rm -f /etc/nginx/sites-enabled/trinity-alpha-8001
 
 sudo systemctl daemon-reload
 sudo systemctl enable nginx drama-mud

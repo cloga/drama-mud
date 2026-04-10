@@ -1,4 +1,6 @@
-const WS_URL = import.meta.env.VITE_WS_URL ?? `ws://${window.location.host}/ws`
+import { getStoredAccessCode } from './access-code.js'
+
+const WS_URL = import.meta.env.VITE_WS_URL ?? buildDefaultWsUrl()
 
 export type WsMessageHandler = (data: Record<string, unknown>) => void
 
@@ -7,12 +9,28 @@ export interface WsClient {
   disconnect: () => void
 }
 
+function buildDefaultWsUrl() {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  const basePath = normalizeBasePrefix(import.meta.env.BASE_URL)
+  return `${protocol}//${window.location.host}${basePath}/ws`
+}
+
+function normalizeBasePrefix(value: string | undefined) {
+  const trimmed = (value ?? '').trim()
+  if (!trimmed || trimmed === '/') {
+    return ''
+  }
+
+  return `/${trimmed.replace(/^\/+|\/+$/g, '')}`
+}
+
 /** WebSocket client wrapper with auto-reconnect */
 export function createWsClient(
   onMessage: WsMessageHandler,
   onConnected?: () => void,
   onDisconnected?: () => void,
 ): WsClient {
+  const accessCode = getStoredAccessCode()
   let ws: WebSocket | null = null
   let reconnectTimer: ReturnType<typeof setTimeout> | null = null
   let intentionalClose = false
@@ -64,7 +82,7 @@ export function createWsClient(
 
   function send(type: string, payload: Record<string, unknown> = {}) {
     if (ws?.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type, ...payload }))
+      ws.send(JSON.stringify({ type, ...payload, ...(accessCode ? { accessCode } : {}) }))
     }
   }
 

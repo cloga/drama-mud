@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { api, type CustomCharacterDraft, type CustomGameDraft, type GameInfo } from '../lib/api'
+import { api, isUnauthorizedError, type CustomCharacterDraft, type CustomGameDraft, type GameInfo } from '../lib/api'
+import { clearStoredAccessCode, getStoredAccessCode, setStoredAccessCode } from '../lib/access-code.js'
 import { getCustomRoomGame, saveCustomRoomGame, buildCustomGameDetail } from '../lib/custom-room-game'
 import {
   getRoomHistory,
@@ -87,6 +88,10 @@ export function GameLobby({ onRoomCreated, onResumeRoom }: GameLobbyProps) {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [authRequired, setAuthRequired] = useState(false)
+  const [authCode, setAuthCode] = useState(() => getStoredAccessCode())
+  const [authError, setAuthError] = useState<string | null>(null)
+  const [authChecking, setAuthChecking] = useState(false)
   const [hostName, setHostName] = useState(() => getStoredPlayerName())
   const [selectedGame, setSelectedGame] = useState<string | null>(null)
   const [mode, setMode] = useState<LobbyMode>('template')
@@ -101,18 +106,37 @@ export function GameLobby({ onRoomCreated, onResumeRoom }: GameLobbyProps) {
   const [playableCharacters, setPlayableCharacters] = useState<EditableCharacterDraft[]>([createEditableCharacterDraft()])
   const [npcCharacters, setNpcCharacters] = useState<EditableCharacterDraft[]>([createEditableCharacterDraft()])
 
+  const handleUnauthorized = (message = '请输入访问码后再继续。') => {
+    clearStoredAccessCode()
+    setAuthRequired(true)
+    setAuthError(message)
+    setLoading(false)
+  }
+
+  const loadGames = async () => {
+    setLoading(true)
+    setLoadError(null)
+
+    try {
+      const { games: nextGames } = await api.getGames()
+      setGames(nextGames)
+      setSelectedGame((current) => current ?? nextGames.find((game) => game.roleMode === 'fixed')?.name ?? null)
+      setAuthRequired(false)
+      setAuthError(null)
+    } catch (err) {
+      if (isUnauthorizedError(err)) {
+        handleUnauthorized(err.message)
+        return
+      }
+
+      setLoadError(String(err))
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
-    api
-      .getGames()
-      .then(({ games: nextGames }) => {
-        setGames(nextGames)
-        setSelectedGame((current) => current ?? nextGames.find((game) => game.roleMode === 'fixed')?.name ?? null)
-        setLoading(false)
-      })
-      .catch((err) => {
-        setLoadError(String(err))
-        setLoading(false)
-      })
+    void loadGames()
   }, [])
 
   useEffect(() => {
@@ -258,6 +282,10 @@ export function GameLobby({ onRoomCreated, onResumeRoom }: GameLobbyProps) {
         room.npcBackend ?? npcBackend,
       )
     } catch (err) {
+      if (isUnauthorizedError(err)) {
+        handleUnauthorized('访问码已失效，请重新输入。')
+        return
+      }
       setActionError(String(err))
     } finally {
       setCreating(false)
@@ -308,12 +336,43 @@ export function GameLobby({ onRoomCreated, onResumeRoom }: GameLobbyProps) {
       setStoredPlayerName(nextEntry.playerName)
       onResumeRoom(nextEntry)
     } catch (err) {
+      if (isUnauthorizedError(err)) {
+        handleUnauthorized('访问码已失效，请重新输入。')
+        return
+      }
       setResumeErrorByRoom((prev) => ({
         ...prev,
         [entry.roomId]: `继续失败：${String(err)}。你可以忽略这条记录，或直接移除。`,
       }))
     } finally {
       setResumingRoomId(null)
+    }
+  }
+
+  const handleVerifyAccessCode = async () => {
+    const trimmedAccessCode = authCode.trim()
+    if (!trimmedAccessCode) {
+      setAuthError('请输入访问码。')
+      return
+    }
+
+    setAuthChecking(true)
+    setAuthError(null)
+
+    try {
+      await api.verifyAccessCode(trimmedAccessCode)
+      setStoredAccessCode(trimmedAccessCode)
+      await loadGames()
+    } catch (err) {
+      if (isUnauthorizedError(err)) {
+        clearStoredAccessCode()
+        setAuthRequired(true)
+        setAuthError('访问码错误，请重试。')
+      } else {
+        setAuthError(String(err))
+      }
+    } finally {
+      setAuthChecking(false)
     }
   }
 
@@ -330,6 +389,53 @@ export function GameLobby({ onRoomCreated, onResumeRoom }: GameLobbyProps) {
       <div className="game-lobby game-lobby--status">
         <p className="game-lobby__error">加载失败：{loadError}</p>
       </div>
+    )
+  }
+
+  if (authRequired) {
+    return (
+      <section className="game-lobby">
+        <section className="game-lobby__hero">
+          <div className="game-lobby__hero-main">
+            <p className="game-lobby__eyebrow">访问受限</p>
+            <h2 className="game-lobby__title">先输入访问码，再进入 Drama MUD</h2>
+            <p className="game-lobby__subtitle">这是一个共享口令保护层，用来避免外部恶意消耗你的 LLM token。</p>
+          </div>
+        </section>
+
+        <section className="game-lobby__panel game-lobby__panel--profile">
+          <div className="game-lobby__avatar" aria-hidden="true">
+            锁
+          </div>
+          <div className="game-lobby__profile-body">
+            <label className="game-lobby__field">
+              <span className="game-lobby__label">访问码</span>
+              <input
+                className="game-lobby__input"
+                type="password"
+                value={authCode}
+                onChange={(e) => setAuthCode(e.target.value)}
+                placeholder="输入访问码"
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    void handleVerifyAccessCode()
+                  }
+                }}
+              />
+            </label>
+            <p className="game-lobby__helper">验证成功后会保存在当前浏览器，后续创建、续玩和 WebSocket 连接都会自动带上。</p>
+            {authError && <p className="game-lobby__error">{authError}</p>}
+            <button
+              type="button"
+              className="game-lobby__create-button"
+              onClick={() => void handleVerifyAccessCode()}
+              disabled={authChecking}
+            >
+              {authChecking ? '正在验证...' : '验证访问码'}
+            </button>
+          </div>
+        </section>
+      </section>
     )
   }
 

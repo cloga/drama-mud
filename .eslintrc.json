@@ -7,6 +7,14 @@
     "plugin:@typescript-eslint/recommended",
     "prettier"
   ],
+  "overrides": [
+    {
+      "files": ["client-mp/src/pages/**/*.tsx"],
+      "rules": {
+        "@typescript-eslint/ban-ts-comment": "off"
+      }
+    }
+  ],
   "rules": {
     "@typescript-eslint/no-explicit-any": "error",
     "@typescript-eslint/explicit-function-return-type": "off",

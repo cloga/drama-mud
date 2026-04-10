@@ -38,12 +38,17 @@ export async function createServer() {
     fallbackEngines: config.optimusRuntimeFallbackEngines,
   })
 
-  registerRoutes(app, roomManager)
+  const auth = {
+    authEnabled: config.authEnabled,
+    accessCode: config.accessCode,
+  }
+
+  registerRoutes(app, roomManager, auth)
   registerWsHandler(app, roomManager, {
     llmClient,
     npcBackend: config.npcBackend,
     runtimeAdapter,
-  })
+  }, auth)
 
   return { app, config }
 }

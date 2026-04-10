@@ -13,6 +13,9 @@ jobs:
       VM_USER: ${{ vars.AZURE_VM_USER || 'azureuser' }}
       APP_ROOT: ${{ vars.AZURE_VM_APP_ROOT || '/srv/drama-mud' }}
       SERVER_NAME: ${{ vars.AZURE_VM_SERVER_NAME || '_' }}
+      APP_BASE_PATH: ${{ vars.AZURE_VM_APP_BASE_PATH || '/drama-mud/' }}
+      VITE_APP_BASE_PATH: ${{ vars.AZURE_VM_APP_BASE_PATH || '/drama-mud/' }}
+      TRINITY_ALPHA_UPSTREAM: ${{ vars.AZURE_VM_TRINITY_ALPHA_UPSTREAM || '127.0.0.1:8001' }}
       WEB_ROOT: /var/www/drama-mud
 
     steps:
@@ -69,4 +72,4 @@ jobs:
         shell: bash
         run: |
           ssh "$VM_USER@$VM_HOST" "rm -rf /tmp/drama-mud-src && mkdir -p /tmp/drama-mud-src && tar -xzf /tmp/drama-mud.tar.gz -C /tmp/drama-mud-src"
-          ssh "$VM_USER@$VM_HOST" "cd /tmp/drama-mud-src && APP_ROOT='$APP_ROOT' APP_USER='$VM_USER' WEB_ROOT='$WEB_ROOT' SERVER_NAME='$SERVER_NAME' bash scripts/setup-vm.sh && APP_ROOT='$APP_ROOT' APP_USER='$VM_USER' WEB_ROOT='$WEB_ROOT' bash scripts/deploy-vm.sh /tmp/drama-mud-src"
+          ssh "$VM_USER@$VM_HOST" "cd /tmp/drama-mud-src && APP_ROOT='$APP_ROOT' APP_USER='$VM_USER' WEB_ROOT='$WEB_ROOT' SERVER_NAME='$SERVER_NAME' APP_BASE_PATH='$APP_BASE_PATH' TRINITY_ALPHA_UPSTREAM='$TRINITY_ALPHA_UPSTREAM' bash scripts/setup-vm.sh && APP_ROOT='$APP_ROOT' APP_USER='$VM_USER' WEB_ROOT='$WEB_ROOT' APP_BASE_PATH='$APP_BASE_PATH' bash scripts/deploy-vm.sh /tmp/drama-mud-src"

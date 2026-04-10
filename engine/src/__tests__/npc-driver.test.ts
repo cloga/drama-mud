@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { normalizeMemory } from '../character/npc-driver.js'
 import { MAX_DURABLE_FACTS } from '../types/index.js'
 

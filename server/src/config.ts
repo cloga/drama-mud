@@ -12,6 +12,8 @@ loadDotenv({
 export interface ServerConfig {
   port: number
   roomStorePath: string
+  authEnabled: boolean
+  accessCode: string
   npcBackend: 'agent-runtime' | 'llm'
   llmConfigured: boolean
   llmApiKey: string
@@ -33,6 +35,7 @@ export interface ServerConfig {
 
 export function loadConfig(): ServerConfig {
   const workspaceRoot = process.env.OPTIMUS_WORKSPACE_ROOT ?? defaultWorkspaceRoot
+  const accessCode = process.env.DRAMA_MUD_ACCESS_CODE?.trim() ?? ''
   const llmModel = readFirstEnv('LLM_MODEL', 'OPENAI_MODEL', 'MODEL_ID_SEED_1_6') ?? 'doubao-seed-1-6-flash-250828'
   const llmApiKey = readFirstEnv('OPENAI_API_KEY', 'VOLC_ARK_API_KEY') ?? ''
   const llmConfigured = Boolean(llmApiKey)
@@ -50,6 +53,8 @@ export function loadConfig(): ServerConfig {
     port: parseInt(process.env.PORT ?? '3001', 10),
     roomStorePath:
       process.env.ROOM_STORE_PATH?.trim() || resolve(workspaceRoot, 'server', '.runtime-data', 'rooms.json'),
+    authEnabled: Boolean(accessCode),
+    accessCode,
     npcBackend: requestedNpcBackend,
     llmConfigured,
     llmApiKey,

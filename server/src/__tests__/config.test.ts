@@ -12,6 +12,7 @@ describe('loadConfig', () => {
   it('defaults the Optimus runtime to HTTP with CLI fallback enabled', () => {
     delete process.env.OPENAI_API_KEY
     delete process.env.VOLC_ARK_API_KEY
+    delete process.env.DRAMA_MUD_ACCESS_CODE
     delete process.env.NPC_BACKEND
     delete process.env.LLM_MODEL
     delete process.env.OPENAI_MODEL
@@ -21,6 +22,8 @@ describe('loadConfig', () => {
     delete process.env.LLM_BASE_URL
     delete process.env.BASE_URL
     delete process.env.LLM_FALLBACK_MODELS
+    delete process.env.ROOM_STORE_PATH
+    delete process.env.OPTIMUS_WORKSPACE_ROOT
     delete process.env.OPTIMUS_RUNTIME_TRANSPORT
     delete process.env.OPTIMUS_RUNTIME_BASE_URL
     delete process.env.OPTIMUS_RUNTIME_FALLBACK_TRANSPORT
@@ -33,6 +36,8 @@ describe('loadConfig', () => {
 
     expect(config.npcBackend).toBe('llm')
     expect(config.roomStorePath.replace(/\\/g, '/')).toMatch(/server\/\.runtime-data\/rooms\.json$/)
+    expect(config.authEnabled).toBe(false)
+    expect(config.accessCode).toBe('')
     expect(config.llmConfigured).toBe(false)
     expect(config.llmModel).toBe('doubao-seed-1-6-flash-250828')
     expect(config.llmFallbackModels).toEqual(['gpt-5.4-mini'])
@@ -49,6 +54,7 @@ describe('loadConfig', () => {
   it('parses explicit runtime transport and engine overrides from env', () => {
     delete process.env.OPENAI_API_KEY
     delete process.env.VOLC_ARK_API_KEY
+    delete process.env.DRAMA_MUD_ACCESS_CODE
     delete process.env.NPC_BACKEND
     delete process.env.OPENAI_BASE_URL
     delete process.env.VOLC_ARK_BASE_URL
@@ -93,6 +99,15 @@ describe('loadConfig', () => {
 
     expect(config.npcBackend).toBe('llm')
     expect(config.llmConfigured).toBe(true)
+  })
+
+  it('enables shared access-code auth when DRAMA_MUD_ACCESS_CODE is set', () => {
+    process.env.DRAMA_MUD_ACCESS_CODE = ' let-me-in '
+
+    const config = loadConfig()
+
+    expect(config.authEnabled).toBe(true)
+    expect(config.accessCode).toBe('let-me-in')
   })
 
   it('accepts volcengine-style env aliases for the llm client', () => {
