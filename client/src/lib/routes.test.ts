@@ -1,16 +1,21 @@
 import { describe, expect, it } from 'vitest'
 import { buildRouteUrl, parseRouteLocation, resolveRouteState } from './routes.js'
 
+const APP_BASE_PATH = (() => {
+  const baseUrl = import.meta.env.BASE_URL?.trim() || '/'
+  return baseUrl === '/' ? '' : baseUrl.replace(/\/+$/g, '')
+})()
+
 describe('routes', () => {
   it('builds explicit lobby and room urls', () => {
-    expect(buildRouteUrl('lobby', {})).toBe('/lobby')
+    expect(buildRouteUrl('lobby', {})).toBe(`${APP_BASE_PATH}/lobby`)
     expect(
       buildRouteUrl('character-select', {
         roomId: 'room-1',
         templateName: 'campus',
         playerName: '阿青',
       }),
-    ).toBe('/rooms/room-1/characters?template=campus&player=%E9%98%BF%E9%9D%92')
+    ).toBe(`${APP_BASE_PATH}/rooms/room-1/characters?template=campus&player=%E9%98%BF%E9%9D%92`)
     expect(
       buildRouteUrl('game', {
         roomId: 'room 1',
@@ -20,7 +25,7 @@ describe('routes', () => {
         characterId: 'lead',
       }),
     ).toBe(
-      '/rooms/room%201/chat?template=campus&title=%E6%A0%A1%E5%9B%AD&player=%E9%98%BF%E9%9D%92&character=lead',
+      `${APP_BASE_PATH}/rooms/room%201/chat?template=campus&title=%E6%A0%A1%E5%9B%AD&player=%E9%98%BF%E9%9D%92&character=lead`,
     )
   })
 
